@@ -503,89 +503,95 @@ public class FoodDeliveryData
 
         Orders =
         [
-            CreateOrder(1, 1, 1, 1, 500m, 30),
-            CreateOrder(2, 1, 2, 4, 650m, 25),
-            CreateOrder(3, 1, 3, 7, 800m, 45),
-            CreateOrder(4, 1, 4, 10, 900m, 20),
-            CreateOrder(5, 1, 5, 16, 1100m, 35),
-            CreateOrder(6, 1, 6, 19, 1250m, 40),
+            CreateOrder(1, 1, 1, 1550m, 30, 1, 2, 22),
+            CreateOrder(2, 1, 2, 1050m, 25, 4, 5),
+            CreateOrder(3, 1, 3, 650m, 45, 7),
+            CreateOrder(4, 1, 4, 450m, 20, 10),
+            CreateOrder(5, 1, 5, 1100m, 35, 13, 16, 22),
+            CreateOrder(6, 1, 6, 350m, 40, 19),
 
-            CreateOrder(7, 2, 1, 2, 750m, 30),
-            CreateOrder(8, 2, 2, 5, 700m, 25),
-            CreateOrder(9, 2, 3, 8, 600m, 35),
-            CreateOrder(10, 2, 4, 11, 850m, 45),
-            CreateOrder(11, 2, 5, 17, 1300m, 30),
+            CreateOrder(7, 2, 1, 750m, 30, 2),
+            CreateOrder(8, 2, 2, 550m, 25, 5),
+            CreateOrder(9, 2, 3, 600m, 35, 8),
+            CreateOrder(10, 2, 4, 400m, 45, 11),
+            CreateOrder(11, 2, 5, 650m, 30, 17),
 
-            CreateOrder(12, 3, 1, 3, 800m, 20),
-            CreateOrder(13, 3, 2, 6, 900m, 40),
-            CreateOrder(14, 3, 3, 9, 700m, 25),
-            CreateOrder(15, 3, 4, 12, 650m, 30),
-            CreateOrder(16, 3, 5, 18, 1200m, 35),
+            CreateOrder(12, 3, 1, 800m, 20, 7, 22),
+            CreateOrder(13, 3, 2, 700m, 40, 6),
+            CreateOrder(14, 3, 3, 700m, 25, 9),
+            CreateOrder(15, 3, 4, 350m, 30, 12),
+            CreateOrder(16, 3, 5, 620m, 35, 18),
 
-            CreateOrder(17, 4, 1, 1, 650m, 25),
-            CreateOrder(18, 4, 2, 4, 500m, 30),
-            CreateOrder(19, 4, 3, 10, 450m, 20),
-            CreateOrder(20, 4, 6, 22, 1200m, 40),
+            CreateOrder(17, 4, 1, 650m, 25, 1),
+            CreateOrder(18, 4, 2, 500m, 30, 4),
+            CreateOrder(19, 4, 3, 450m, 20, 10),
+            CreateOrder(20, 4, 6, 1150m, 40, 16, 20, 22),
 
-            CreateOrder(21, 5, 1, 7, 650m, 35),
-            CreateOrder(22, 5, 2, 8, 600m, 30),
-            CreateOrder(23, 5, 3, 13, 350m, 25),
-            CreateOrder(24, 5, 4, 16, 600m, 20),
+            CreateOrder(21, 5, 1, 650m, 35, 7),
+            CreateOrder(22, 5, 2, 600m, 30, 8),
+            CreateOrder(23, 5, 3, 350m, 25, 13),
+            CreateOrder(24, 5, 4, 600m, 20, 16),
 
-            CreateOrder(25, 6, 1, 2, 750m, 30),
-            CreateOrder(26, 6, 2, 5, 550m, 25),
-            CreateOrder(27, 6, 3, 14, 420m, 35),
+            CreateOrder(25, 6, 1, 750m, 30, 2),
+            CreateOrder(26, 6, 2, 550m, 25, 5),
+            CreateOrder(27, 6, 3, 420m, 35, 14),
 
-            CreateOrder(28, 7, 1, 19, 350m, 30),
-            CreateOrder(29, 7, 2, 20, 400m, 25),
+            CreateOrder(28, 7, 1, 350m, 30, 19),
+            CreateOrder(29, 7, 2, 400m, 25, 20),
 
-            CreateOrder(30, 8, 3, 22, 150m, 20),
-            CreateOrder(31, 8, 4, 23, 120m, 30),
+            CreateOrder(30, 8, 3, 150m, 20, 22),
+            CreateOrder(31, 8, 4, 120m, 30, 23),
 
-            CreateOrder(32, 9, 5, 17, 1300m, 40),
-            CreateOrder(33, 9, 6, 18, 620m, 35),
+            CreateOrder(32, 9, 5, 650m, 40, 17),
+            CreateOrder(33, 9, 6, 620m, 35, 18),
 
-            CreateOrder(34, 10, 1, 24, 180m, 25),
-            CreateOrder(35, 10, 2, 25, 350m, 30),
+            CreateOrder(34, 10, 1, 180m, 25, 24),
+            CreateOrder(35, 10, 2, 350m, 30, 25),
 
-            CreateOrder(36, 11, 1, 26, 400m, 20),
-            CreateOrder(37, 12, 2, 27, 300m, 25),
-            CreateOrder(38, 13, 3, 28, 350m, 35),
-            CreateOrder(39, 14, 4, 29, 250m, 30),
-            CreateOrder(40, 15, 5, 30, 300m, 45)
+            CreateOrder(36, 4, 1, 400m, 20, 26),
+            CreateOrder(37, 5, 2, 300m, 25, 27),
+            CreateOrder(38, 6, 3, 350m, 35, 28),
+            CreateOrder(39, 7, 4, 250m, 30, 29),
+            CreateOrder(40, 8, 5, 300m, 45, 30)
         ];
     }
 
     private Order CreateOrder(
-        int id,
-        int restaurantId,
-        int customerId,
-        int dishId,
-        decimal totalAmount,
-        int deliveryMinutes)
-    {
-        DateTime createdAt = new DateTime(2026, 9, 1)
-            .AddDays(id - 1)
-            .AddHours(12);
+    int id,
+    int restaurantId,
+    int customerId,
+    decimal totalAmount,
+    int deliveryMinutes,
+    params int[] dishIds)
+{
+    DateTime createdAt = new DateTime(2026, 9, 1)
+        .AddDays(id - 1)
+        .AddHours(12);
 
-        return new Order
+    List<OrderItem> items = [];
+
+    for (int i = 0; i < dishIds.Length; i++)
+    {
+        Dish dish = Dishes.Single(item => item.Id == dishIds[i]);
+
+        items.Add(new OrderItem
         {
-            Id = id,
-            Customer = Customers[customerId - 1],
-            Restaurant = Restaurants[restaurantId - 1],
-            CreatedAt = createdAt,
-            DeliveredAt = createdAt.AddMinutes(deliveryMinutes),
-            TotalAmount = totalAmount,
-            Items =
-            [
-                new OrderItem
-                {
-                    Id = id,
-                    Dish = Dishes[dishId - 1],
-                    Quantity = 1,
-                    UnitPrice = Dishes[dishId - 1].Price
-                }
-            ]
-        };
+            Id = id * 10 + i + 1,
+            Dish = dish,
+            Quantity = 1,
+            UnitPrice = dish.Price
+        });
     }
+
+    return new Order
+    {
+        Id = id,
+        Customer = Customers.Single(item => item.Id == customerId),
+        Restaurant = Restaurants.Single(item => item.Id == restaurantId),
+        CreatedAt = createdAt,
+        DeliveredAt = createdAt.AddMinutes(deliveryMinutes),
+        TotalAmount = totalAmount,
+        Items = items
+    };
+}
 }

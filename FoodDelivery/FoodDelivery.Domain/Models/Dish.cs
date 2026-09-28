@@ -29,4 +29,9 @@ public class Dish
     /// Категория блюда
     /// </summary>
     public required Category Category { get; set; }
+
+    /// <summary>
+    /// Ресторан, в котором приготовлено блюдо
+    /// </summary>
+    public required Restaurant Restaurant { get; set; }
 }

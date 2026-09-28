@@ -23,7 +23,7 @@ public class Customer
     /// <summary>
     /// Отчество клиента
     /// </summary>
-    public required string Patronymic { get; set; }
+    public string?  Patronymic { get; set; }
 
     /// <summary>
     /// Номер телефона клиента

@@ -19,9 +19,4 @@ public class OrderItem
     /// Количество блюд
     /// </summary>
     public required int Quantity { get; set; }
-
-    /// <summary>
-    /// Цена блюда на момент заказа
-    /// </summary>
-    public required decimal UnitPrice { get; set; }
 }

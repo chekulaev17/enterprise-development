@@ -28,12 +28,13 @@ public class Order
     /// <summary>
     /// Время доставки заказа
     /// </summary>
-    public required DateTime DeliveredAt { get; set; }
+    public DateTime? DeliveredAt { get; set; }
 
     /// <summary>
     /// Общая сумма заказа
     /// </summary>
-    public required decimal TotalAmount { get; set; }
+    public required decimal TotalAmount =>
+        Items.Sum(item => item.Dish.Price * item.Quantity);
 
     /// <summary>
     /// Список блюд в заказе

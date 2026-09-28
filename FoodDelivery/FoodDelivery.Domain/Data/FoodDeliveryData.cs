@@ -1,9 +1,15 @@
 using FoodDelivery.Domain.Models;
 
-namespace FoodDelivery.Tests.TestData;
+namespace FoodDelivery.Domain.Data;
 
+/// <summary>
+/// Тестовые данные службы доставки еды
+/// </summary>
 public class FoodDeliveryData
 {
+    /// <summary>
+    /// Категории блюд
+    /// </summary>
     public List<Category> Categories { get; } =
     [
         new Category { Id = 1, Name = "Пицца" },
@@ -18,8 +24,14 @@ public class FoodDeliveryData
         new Category { Id = 10, Name = "Закуски" }
     ];
 
+    /// <summary>
+    /// Блюда
+    /// </summary>
     public List<Dish> Dishes { get; }
 
+    /// <summary>
+    /// Рестораны
+    /// </summary>
     public List<Restaurant> Restaurants { get; } =
     [
         new Restaurant
@@ -114,6 +126,9 @@ public class FoodDeliveryData
         }
     ];
 
+    /// <summary>
+    /// Клиенты
+    /// </summary>
     public List<Customer> Customers { get; } =
     [
         new Customer
@@ -253,8 +268,14 @@ public class FoodDeliveryData
         }
     ];
 
+    /// <summary>
+    /// Заказы
+    /// </summary>
     public List<Order> Orders { get; }
 
+    /// <summary>
+    /// Инициализирует тестовые данные: блюда и заказы
+    /// </summary>
     public FoodDeliveryData()
     {
         Dishes =
@@ -556,42 +577,44 @@ public class FoodDeliveryData
         ];
     }
 
+    /// <summary>
+    /// Создаёт заказ с позициями на основе переданных идентификаторов блюд
+    /// </summary>
+
     private Order CreateOrder(
-    int id,
-    int restaurantId,
-    int customerId,
-    decimal totalAmount,
-    int deliveryMinutes,
-    params int[] dishIds)
-{
-    DateTime createdAt = new DateTime(2026, 9, 1)
-        .AddDays(id - 1)
-        .AddHours(12);
-
-    List<OrderItem> items = [];
-
-    for (int i = 0; i < dishIds.Length; i++)
+        int id,
+        int restaurantId,
+        int customerId,
+        decimal totalAmount,
+        int deliveryMinutes,
+        params int[] dishIds)
     {
-        Dish dish = Dishes.Single(item => item.Id == dishIds[i]);
+        DateTime createdAt = new DateTime(2026, 9, 1)
+            .AddDays(id - 1)
+            .AddHours(12);
 
-        items.Add(new OrderItem
+        List<OrderItem> items = [];
+
+        for (int i = 0; i < dishIds.Length; i++)
         {
-            Id = id * 10 + i + 1,
-            Dish = dish,
-            Quantity = 1,
-            UnitPrice = dish.Price
-        });
-    }
+            Dish dish = Dishes.Single(item => item.Id == dishIds[i]);
 
-    return new Order
-    {
-        Id = id,
-        Customer = Customers.Single(item => item.Id == customerId),
-        Restaurant = Restaurants.Single(item => item.Id == restaurantId),
-        CreatedAt = createdAt,
-        DeliveredAt = createdAt.AddMinutes(deliveryMinutes),
-        TotalAmount = totalAmount,
-        Items = items
-    };
-}
+            items.Add(new OrderItem
+            {
+                Dish = dish,
+                Quantity = 1,
+            });
+        }
+
+        return new Order
+        {
+            Id = id,
+            Customer = Customers.Single(item => item.Id == customerId),
+            Restaurant = Restaurants.Single(item => item.Id == restaurantId),
+            CreatedAt = createdAt,
+            DeliveredAt = createdAt.AddMinutes(deliveryMinutes),
+            TotalAmount = totalAmount,
+            Items = items
+        };
+    }
 }

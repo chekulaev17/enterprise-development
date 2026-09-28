@@ -1,42 +1,44 @@
-using FoodDelivery.Tests.TestData;
+using FoodDelivery.Domain.Data;
 
 namespace FoodDelivery.Tests.Queries;
 
-public class RestaurantTests
+public class RestaurantTests(FoodDeliveryData data)
+    : IClassFixture<FoodDeliveryData>
 {
-    private readonly FoodDeliveryData _data = new();
-
     /// <summary>
     /// Проверяет пять ресторанов с наибольшим количеством заказов
     /// </summary>
     [Fact]
     public void GetTopFiveRestaurants()
     {
-        var restaurants = _data.Orders
-            .GroupBy(order => order.Restaurant)
-            .OrderByDescending(group => group.Count())
-            .ThenBy(group => group.Key.Name)
+        var restaurants = data.Orders
+            .CountBy(order => order.Restaurant.Id)
+            .OrderByDescending(item => item.Value)
+            .ThenBy(item =>
+                data.Restaurants.Single(r => r.Id == item.Key).Name)
             .Take(5)
+            .Select(item => new
+            {
+                Name = data.Restaurants.Single(r => r.Id == item.Key).Name,
+                Count = item.Value
+            })
             .ToList();
 
-        Assert.Equal(5, restaurants.Count);
+        var expected = new (string Name, int Count)[]
+        {
+            ("Вкусно рядом", 6),
+            ("Городская кухня", 5),
+            ("Дом еды", 5),
+            ("Пицца Хаус", 5),
+            ("Суши Тайм", 5)
+        };
 
-        Assert.Equal(
-            "Вкусно рядом",
-            restaurants[0].Key.Name);
+        Assert.Equal(expected.Length, restaurants.Count);
 
-        Assert.Equal(6, restaurants[0].Count());
-
-        Assert.Equal(
-            "Городская кухня",
-            restaurants[1].Key.Name);
-
-        Assert.Equal(5, restaurants[1].Count());
-
-        Assert.Equal(
-            "Дом еды",
-            restaurants[2].Key.Name);
-
-        Assert.Equal(5, restaurants[2].Count());
+        for (var i = 0; i < expected.Length; i++)
+        {
+            Assert.Equal(expected[i].Name, restaurants[i].Name);
+            Assert.Equal(expected[i].Count, restaurants[i].Count);
+        }
     }
 }

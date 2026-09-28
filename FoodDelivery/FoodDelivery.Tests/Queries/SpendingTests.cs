@@ -1,18 +1,17 @@
-using FoodDelivery.Tests.TestData;
+using FoodDelivery.Domain.Data;
 
 namespace FoodDelivery.Tests.Queries;
 
-public class SpendingTests
+public class SpendingTests(FoodDeliveryData data)
+    : IClassFixture<FoodDeliveryData>
 {
-    private readonly FoodDeliveryData _data = new();
-
     /// <summary>
     /// Проверяет клиента с наибольшей суммой заказов за всё время
     /// </summary>
     [Fact]
     public void GetCustomerWithMaximumSpending()
     {
-        var customer = _data.Orders
+        var customer = data.Orders
             .GroupBy(order => order.Customer)
             .Select(group => new
             {
@@ -20,10 +19,12 @@ public class SpendingTests
                 TotalAmount = group.Sum(order => order.TotalAmount)
             })
             .OrderByDescending(item => item.TotalAmount)
+            .ThenBy(item => item.Customer.Id)
             .First();
 
         Assert.Equal("Иванов", customer.Customer.LastName);
         Assert.Equal("Иван", customer.Customer.FirstName);
+        Assert.Equal("Петрович", customer.Customer.Patronymic);
         Assert.Equal(6080m, customer.TotalAmount);
     }
 }

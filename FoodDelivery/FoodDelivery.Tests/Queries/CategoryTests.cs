@@ -1,27 +1,32 @@
-using FoodDelivery.Tests.TestData;
+using FoodDelivery.Domain.Data;
 
 namespace FoodDelivery.Tests.Queries;
 
-public class CategoryTests
+public class CategoryTests(FoodDeliveryData data)
+    : IClassFixture<FoodDeliveryData>
 {
-    private readonly FoodDeliveryData _data = new();
+    private const int AmountPrecision = 2;
 
     /// <summary>
-    /// Проверяет количество и суммы заказов выбранной категории за период
+    /// Проверяет количество, среднюю и общую сумму заказов выбранной категории за период
     /// </summary>
     [Theory]
-    [InlineData(1)]
-    [InlineData(2)]
-    [InlineData(5)]
-    public void GetCategoryOrderInfo(int categoryId)
+    [InlineData(1, 3, 983.33, 2950)]
+    [InlineData(2, 4, 700, 2800)]
+    [InlineData(5, 1, 1100, 1100)]
+    public void GetCategoryOrderInfo(
+        int categoryId,
+        int expectedOrderCount,
+        decimal expectedAverageAmount,
+        decimal expectedTotalAmount)
     {
         var startDate = new DateTime(2026, 9, 1);
         var endDate = new DateTime(2026, 9, 20);
 
-        var category = _data.Categories
+        var category = data.Categories
             .Single(item => item.Id == categoryId);
 
-        var orders = _data.Orders
+        var orders = data.Orders
             .Where(order =>
                 order.CreatedAt >= startDate &&
                 order.CreatedAt <= endDate &&
@@ -29,24 +34,14 @@ public class CategoryTests
                     item.Dish.Category.Id == category.Id))
             .ToList();
 
-        Assert.NotEmpty(orders);
-
         var orderCount = orders.Count;
         var totalAmount = orders.Sum(order => order.TotalAmount);
-        var averageAmount = orders.Average(order => order.TotalAmount);
+        var averageAmount = Math.Round(
+            orders.Average(order => order.TotalAmount),
+            AmountPrecision);
 
-        Assert.Equal(
-            orderCount,
-            orders.DistinctBy(order => order.Id).Count());
-
-        Assert.Equal(
-            totalAmount,
-            orders.DistinctBy(order => order.Id)
-                .Sum(order => order.TotalAmount));
-
-        Assert.Equal(
-            averageAmount,
-            orders.DistinctBy(order => order.Id)
-                .Average(order => order.TotalAmount));
+        Assert.Equal(expectedOrderCount, orderCount);
+        Assert.Equal(expectedTotalAmount, totalAmount);
+        Assert.Equal(expectedAverageAmount, averageAmount);
     }
 }

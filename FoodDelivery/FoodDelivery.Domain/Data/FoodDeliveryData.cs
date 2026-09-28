@@ -286,7 +286,8 @@ public class FoodDeliveryData
                 Name = "Маргарита",
                 Weight = 500,
                 Price = 650m,
-                Category = Categories[0]
+                Category = Categories[0],
+                Restaurant = Restaurants[3]
             },
             new Dish
             {
@@ -294,7 +295,8 @@ public class FoodDeliveryData
                 Name = "Пепперони",
                 Weight = 550,
                 Price = 750m,
-                Category = Categories[0]
+                Category = Categories[0],
+                Restaurant = Restaurants[3]
             },
             new Dish
             {
@@ -302,7 +304,8 @@ public class FoodDeliveryData
                 Name = "Четыре сыра",
                 Weight = 520,
                 Price = 800m,
-                Category = Categories[0]
+                Category = Categories[0],
+                Restaurant = Restaurants[3]
             },
             new Dish
             {
@@ -310,7 +313,8 @@ public class FoodDeliveryData
                 Name = "Классический бургер",
                 Weight = 350,
                 Price = 500m,
-                Category = Categories[1]
+                Category = Categories[1],
+                Restaurant = Restaurants[5]
             },
             new Dish
             {
@@ -318,7 +322,8 @@ public class FoodDeliveryData
                 Name = "Чизбургер",
                 Weight = 370,
                 Price = 550m,
-                Category = Categories[1]
+                Category = Categories[1],
+                Restaurant = Restaurants[5]
             },
             new Dish
             {
@@ -326,7 +331,8 @@ public class FoodDeliveryData
                 Name = "Двойной бургер",
                 Weight = 450,
                 Price = 700m,
-                Category = Categories[1]
+                Category = Categories[1],
+                Restaurant = Restaurants[5]
             },
             new Dish
             {
@@ -334,7 +340,8 @@ public class FoodDeliveryData
                 Name = "Филадельфия",
                 Weight = 280,
                 Price = 650m,
-                Category = Categories[2]
+                Category = Categories[2],
+                Restaurant = Restaurants[4]
             },
             new Dish
             {
@@ -342,7 +349,8 @@ public class FoodDeliveryData
                 Name = "Калифорния",
                 Weight = 300,
                 Price = 600m,
-                Category = Categories[2]
+                Category = Categories[2],
+                Restaurant = Restaurants[4]
             },
             new Dish
             {
@@ -350,7 +358,8 @@ public class FoodDeliveryData
                 Name = "Темпура",
                 Weight = 320,
                 Price = 700m,
-                Category = Categories[2]
+                Category = Categories[2],
+                Restaurant = Restaurants[4]
             },
             new Dish
             {
@@ -358,7 +367,8 @@ public class FoodDeliveryData
                 Name = "Цезарь",
                 Weight = 250,
                 Price = 450m,
-                Category = Categories[3]
+                Category = Categories[3],
+                Restaurant = Restaurants[0]
             },
             new Dish
             {
@@ -366,7 +376,8 @@ public class FoodDeliveryData
                 Name = "Греческий салат",
                 Weight = 240,
                 Price = 400m,
-                Category = Categories[3]
+                Category = Categories[3],
+                Restaurant = Restaurants[0]
             },
             new Dish
             {
@@ -374,7 +385,8 @@ public class FoodDeliveryData
                 Name = "Овощной салат",
                 Weight = 220,
                 Price = 350m,
-                Category = Categories[3]
+                Category = Categories[3],
+                Restaurant = Restaurants[0]
             },
             new Dish
             {
@@ -382,7 +394,8 @@ public class FoodDeliveryData
                 Name = "Куриный суп",
                 Weight = 400,
                 Price = 350m,
-                Category = Categories[4]
+                Category = Categories[4],
+                Restaurant = Restaurants[2]
             },
             new Dish
             {
@@ -390,7 +403,8 @@ public class FoodDeliveryData
                 Name = "Солянка",
                 Weight = 400,
                 Price = 420m,
-                Category = Categories[4]
+                Category = Categories[4],
+                Restaurant = Restaurants[2]
             },
             new Dish
             {
@@ -398,7 +412,8 @@ public class FoodDeliveryData
                 Name = "Том Ям",
                 Weight = 450,
                 Price = 650m,
-                Category = Categories[4]
+                Category = Categories[4],
+                Restaurant = Restaurants[2]
             },
             new Dish
             {
@@ -406,7 +421,8 @@ public class FoodDeliveryData
                 Name = "Карбонара",
                 Weight = 400,
                 Price = 600m,
-                Category = Categories[5]
+                Category = Categories[5],
+                Restaurant = Restaurants[8]
             },
             new Dish
             {
@@ -414,7 +430,8 @@ public class FoodDeliveryData
                 Name = "Болоньезе",
                 Weight = 420,
                 Price = 650m,
-                Category = Categories[5]
+                Category = Categories[5],
+                Restaurant = Restaurants[8]
             },
             new Dish
             {
@@ -422,7 +439,8 @@ public class FoodDeliveryData
                 Name = "Альфредо",
                 Weight = 400,
                 Price = 620m,
-                Category = Categories[5]
+                Category = Categories[5],
+                Restaurant = Restaurants[8]
             },
             new Dish
             {
@@ -430,7 +448,8 @@ public class FoodDeliveryData
                 Name = "Чизкейк",
                 Weight = 180,
                 Price = 350m,
-                Category = Categories[6]
+                Category = Categories[6],
+                Restaurant = Restaurants[7]
             },
             new Dish
             {
@@ -438,7 +457,8 @@ public class FoodDeliveryData
                 Name = "Тирамису",
                 Weight = 180,
                 Price = 400m,
-                Category = Categories[6]
+                Category = Categories[6],
+                Restaurant = Restaurants[7]
             },
             new Dish
             {
@@ -446,7 +466,8 @@ public class FoodDeliveryData
                 Name = "Шоколадный торт",
                 Weight = 200,
                 Price = 450m,
-                Category = Categories[6]
+                Category = Categories[6],
+                Restaurant = Restaurants[7]
             },
             new Dish
             {
@@ -454,7 +475,8 @@ public class FoodDeliveryData
                 Name = "Кола",
                 Weight = 500,
                 Price = 150m,
-                Category = Categories[7]
+                Category = Categories[7],
+                Restaurant = Restaurants[1]
             },
             new Dish
             {
@@ -462,7 +484,8 @@ public class FoodDeliveryData
                 Name = "Морс",
                 Weight = 500,
                 Price = 120m,
-                Category = Categories[7]
+                Category = Categories[7],
+                Restaurant = Restaurants[1]
             },
             new Dish
             {
@@ -470,7 +493,8 @@ public class FoodDeliveryData
                 Name = "Лимонад",
                 Weight = 500,
                 Price = 180m,
-                Category = Categories[7]
+                Category = Categories[7],
+                Restaurant = Restaurants[1]
             },
             new Dish
             {
@@ -478,7 +502,8 @@ public class FoodDeliveryData
                 Name = "Омлет",
                 Weight = 300,
                 Price = 350m,
-                Category = Categories[8]
+                Category = Categories[8],
+                Restaurant = Restaurants[6]
             },
             new Dish
             {
@@ -486,7 +511,8 @@ public class FoodDeliveryData
                 Name = "Сырники",
                 Weight = 250,
                 Price = 400m,
-                Category = Categories[8]
+                Category = Categories[8],
+                Restaurant = Restaurants[6]
             },
             new Dish
             {
@@ -494,7 +520,8 @@ public class FoodDeliveryData
                 Name = "Каша",
                 Weight = 300,
                 Price = 300m,
-                Category = Categories[8]
+                Category = Categories[8],
+                Restaurant = Restaurants[6]
             },
             new Dish
             {
@@ -502,7 +529,8 @@ public class FoodDeliveryData
                 Name = "Наггетсы",
                 Weight = 250,
                 Price = 350m,
-                Category = Categories[9]
+                Category = Categories[9],
+                Restaurant = Restaurants[9]
             },
             new Dish
             {
@@ -510,7 +538,8 @@ public class FoodDeliveryData
                 Name = "Картофель фри",
                 Weight = 200,
                 Price = 250m,
-                Category = Categories[9]
+                Category = Categories[9],
+                Restaurant = Restaurants[9]
             },
             new Dish
             {
@@ -518,74 +547,73 @@ public class FoodDeliveryData
                 Name = "Луковые кольца",
                 Weight = 200,
                 Price = 300m,
-                Category = Categories[9]
+                Category = Categories[9],
+                Restaurant = Restaurants[9]
             }
         ];
 
         Orders =
         [
-            CreateOrder(1, 1, 1, 1550m, 30, 1, 2, 22),
-            CreateOrder(2, 1, 2, 1050m, 25, 4, 5),
-            CreateOrder(3, 1, 3, 650m, 45, 7),
-            CreateOrder(4, 1, 4, 450m, 20, 10),
-            CreateOrder(5, 1, 5, 1100m, 35, 13, 16, 22),
-            CreateOrder(6, 1, 6, 350m, 40, 19),
+            CreateOrder(1, 1, 1, 30, 1, 2, 22),
+            CreateOrder(2, 1, 2, 25, 4, 5),
+            CreateOrder(3, 1, 3, 45, 7),
+            CreateOrder(4, 1, 4, 20, 10),
+            CreateOrder(5, 1, 5, 35, 13, 16, 22),
+            CreateOrder(6, 1, 6, 40, 19),
 
-            CreateOrder(7, 2, 1, 750m, 30, 2),
-            CreateOrder(8, 2, 2, 550m, 25, 5),
-            CreateOrder(9, 2, 3, 600m, 35, 8),
-            CreateOrder(10, 2, 4, 400m, 45, 11),
-            CreateOrder(11, 2, 5, 650m, 30, 17),
+            CreateOrder(7, 2, 1, 30, 2),
+            CreateOrder(8, 2, 2, 25, 5),
+            CreateOrder(9, 2, 3, 35, 8),
+            CreateOrder(10, 2, 4, 45, 11),
+            CreateOrder(11, 2, 5, 30, 17),
 
-            CreateOrder(12, 3, 1, 800m, 20, 7, 22),
-            CreateOrder(13, 3, 2, 700m, 40, 6),
-            CreateOrder(14, 3, 3, 700m, 25, 9),
-            CreateOrder(15, 3, 4, 350m, 30, 12),
-            CreateOrder(16, 3, 5, 620m, 35, 18),
+            CreateOrder(12, 3, 1, 20, 7, 22),
+            CreateOrder(13, 3, 2, 40, 6),
+            CreateOrder(14, 3, 3, 25, 9),
+            CreateOrder(15, 3, 4, 30, 12),
+            CreateOrder(16, 3, 5, 35, 18),
 
-            CreateOrder(17, 4, 1, 650m, 25, 1),
-            CreateOrder(18, 4, 2, 500m, 30, 4),
-            CreateOrder(19, 4, 3, 450m, 20, 10),
-            CreateOrder(20, 4, 6, 1150m, 40, 16, 20, 22),
+            CreateOrder(17, 4, 1, 25, 1),
+            CreateOrder(18, 4, 2, 30, 4),
+            CreateOrder(19, 4, 3, 20, 10),
+            CreateOrder(20, 4, 6, 40, 16, 20, 22),
 
-            CreateOrder(21, 5, 1, 650m, 35, 7),
-            CreateOrder(22, 5, 2, 600m, 30, 8),
-            CreateOrder(23, 5, 3, 350m, 25, 13),
-            CreateOrder(24, 5, 4, 600m, 20, 16),
+            CreateOrder(21, 5, 1, 35, 7),
+            CreateOrder(22, 5, 2, 30, 8),
+            CreateOrder(23, 5, 3, 25, 13),
+            CreateOrder(24, 5, 4, 20, 16),
 
-            CreateOrder(25, 6, 1, 750m, 30, 2),
-            CreateOrder(26, 6, 2, 550m, 25, 5),
-            CreateOrder(27, 6, 3, 420m, 35, 14),
+            CreateOrder(25, 6, 1, 30, 2),
+            CreateOrder(26, 6, 2, 25, 5),
+            CreateOrder(27, 6, 3, 35, 14),
 
-            CreateOrder(28, 7, 1, 350m, 30, 19),
-            CreateOrder(29, 7, 2, 400m, 25, 20),
+            CreateOrder(28, 7, 1, 30, 19),
+            CreateOrder(29, 7, 2, 25, 20),
 
-            CreateOrder(30, 8, 3, 150m, 20, 22),
-            CreateOrder(31, 8, 4, 120m, 30, 23),
+            CreateOrder(30, 8, 3, 20, 22),
+            CreateOrder(31, 8, 4, 30, 23),
 
-            CreateOrder(32, 9, 5, 650m, 40, 17),
-            CreateOrder(33, 9, 6, 620m, 35, 18),
+            CreateOrder(32, 9, 5, 40, 17),
+            CreateOrder(33, 9, 6, 35, 18),
 
-            CreateOrder(34, 10, 1, 180m, 25, 24),
-            CreateOrder(35, 10, 2, 350m, 30, 25),
+            CreateOrder(34, 10, 1, 25, 24),
+            CreateOrder(35, 10, 2, 30, 25),
 
-            CreateOrder(36, 4, 1, 400m, 20, 26),
-            CreateOrder(37, 5, 2, 300m, 25, 27),
-            CreateOrder(38, 6, 3, 350m, 35, 28),
-            CreateOrder(39, 7, 4, 250m, 30, 29),
-            CreateOrder(40, 8, 5, 300m, 45, 30)
+            CreateOrder(36, 4, 1, 20, 26),
+            CreateOrder(37, 5, 2, 25, 27),
+            CreateOrder(38, 6, 3, 35, 28),
+            CreateOrder(39, 7, 4, 30, 29),
+            CreateOrder(40, 8, 5, 45, 30)
         ];
     }
 
     /// <summary>
     /// Создаёт заказ с позициями на основе переданных идентификаторов блюд
     /// </summary>
-
     private Order CreateOrder(
         int id,
         int restaurantId,
         int customerId,
-        decimal totalAmount,
         int deliveryMinutes,
         params int[] dishIds)
     {
@@ -613,7 +641,6 @@ public class FoodDeliveryData
             Restaurant = Restaurants.Single(item => item.Id == restaurantId),
             CreatedAt = createdAt,
             DeliveredAt = createdAt.AddMinutes(deliveryMinutes),
-            TotalAmount = totalAmount,
             Items = items
         };
     }

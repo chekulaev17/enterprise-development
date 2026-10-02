@@ -2,58 +2,33 @@ using FoodDelivery.Domain.Data;
 
 namespace FoodDelivery.Tests.Queries;
 
+/// <summary>
+/// Тесты запросов по клиентам
+/// </summary>
 public class CustomerTests(FoodDeliveryData data)
     : IClassFixture<FoodDeliveryData>
 {
     /// <summary>
-    /// Проверяет клиентов выбранного ресторана в алфавитном порядке по ФИО
+    /// Проверяет клиентов выбранного ресторана, упорядоченных по ФИО
     /// </summary>
     [Theory]
-    [InlineData(1, new string[]
-    {
-        "Иванов Иван Петрович",
-        "Кузнецов Дмитрий Сергеевич",
-        "Петров Алексей Иванович",
-        "Попов Максим Олегович",
-        "Сидорова Мария Александровна",
-        "Смирнова Анна Викторовна"
-    })]
-    [InlineData(2, new string[]
-    {
-        "Иванов Иван Петрович",
-        "Кузнецов Дмитрий Сергеевич",
-        "Петров Алексей Иванович",
-        "Сидорова Мария Александровна",
-        "Смирнова Анна Викторовна"
-    })]
-    [InlineData(3, new string[]
-    {
-        "Иванов Иван Петрович",
-        "Кузнецов Дмитрий Сергеевич",
-        "Петров Алексей Иванович",
-        "Сидорова Мария Александровна",
-        "Смирнова Анна Викторовна"
-    })]
+    [InlineData(1, new[] { 1, 4, 2, 6, 3, 5 })]
+    [InlineData(4, new[] { 1, 2, 6, 3 })]
+    [InlineData(7, new[] { 1, 4, 2 })]
     public void GetRestaurantCustomers(
         int restaurantId,
-        string[] expectedFullNames)
+        int[] expectedCustomerIds)
     {
-        var restaurant = data.Restaurants
-            .Single(item => item.Id == restaurantId);
-
-        var actualFullNames = data.Orders
-            .Where(order => order.Restaurant.Id == restaurant.Id)
+        var actualCustomerIds = data.Orders
+            .Where(order => order.Restaurant.Id == restaurantId)
             .Select(order => order.Customer)
-            .Distinct()
+            .DistinctBy(customer => customer.Id)
             .OrderBy(customer => customer.LastName)
             .ThenBy(customer => customer.FirstName)
             .ThenBy(customer => customer.Patronymic)
-            .Select(customer =>
-                $"{customer.LastName} " +
-                $"{customer.FirstName} " +
-                $"{customer.Patronymic}".Trim())
+            .Select(customer => customer.Id)
             .ToArray();
 
-        Assert.Equal(expectedFullNames, actualFullNames);
+        Assert.Equal(expectedCustomerIds, actualCustomerIds);
     }
 }

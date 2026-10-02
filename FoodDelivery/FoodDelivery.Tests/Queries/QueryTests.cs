@@ -85,7 +85,7 @@ public class QueryTests(FoodDeliveryData data)
             .Min(order => order.DeliveredAt - order.CreatedAt);
 
         var actualOrderIds = data.Orders
-            .Where(order => order.DeliveredAt - order.CreatedAt == expectedMinimumTime)
+            .Where(order => order.DeliveredAt - order.CreatedAt == minimumTime)
             .Select(order => order.Id)
             .ToArray();
 
@@ -99,6 +99,15 @@ public class QueryTests(FoodDeliveryData data)
     [Fact]
     public void GetTopFiveRestaurants()
     {
+        var expected = new[]
+        {
+            (RestaurantId: 1, OrderCount: 6),
+            (RestaurantId: 5, OrderCount: 6),
+            (RestaurantId: 2, OrderCount: 5),
+            (RestaurantId: 3, OrderCount: 5),
+            (RestaurantId: 4, OrderCount: 5)
+        };
+
         var restaurants = data.Orders
             .GroupBy(order => order.Restaurant)
             .Select(group => (
@@ -108,15 +117,6 @@ public class QueryTests(FoodDeliveryData data)
             .ThenBy(item => item.RestaurantId)
             .Take(5)
             .ToArray();
-
-        var expected = new[]
-        {
-            (RestaurantId: 1, OrderCount: 6),
-            (RestaurantId: 5, OrderCount: 6),
-            (RestaurantId: 2, OrderCount: 5),
-            (RestaurantId: 3, OrderCount: 5),
-            (RestaurantId: 4, OrderCount: 5)
-        };
 
         Assert.Equal(expected, restaurants);
     }

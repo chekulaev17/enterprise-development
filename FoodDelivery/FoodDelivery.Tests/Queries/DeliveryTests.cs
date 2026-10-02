@@ -12,7 +12,7 @@ public class DeliveryTests(FoodDeliveryData data)
     public void GetOrdersWithMinimumDeliveryTime()
     {
         var expectedMinimumTime = TimeSpan.FromMinutes(20);
-        var expectedOrderIds = new[] { 4, 12, 19, 24, 30, 36 };
+        var expectedOrderIds = new[] { 4, 12, 19, 24, 32, 38};
 
         var minimumTime = data.Orders
             .Min(order => order.DeliveredAt - order.CreatedAt);

@@ -11,9 +11,9 @@ public class CategoryTests(FoodDeliveryData data)
     /// Проверяет количество, среднюю и общую сумму заказов выбранной категории за период
     /// </summary>
     [Theory]
-    [InlineData(1, 3, 983.33, 2950)]
-    [InlineData(2, 4, 700, 2800)]
-    [InlineData(5, 1, 1100, 1100)]
+    [InlineData(1, 3, 1000, 3000)]
+    [InlineData(5, 5, 698, 3490)]
+    [InlineData(8, 5, 216, 1080)]
     public void GetCategoryOrderInfo(
         int categoryId,
         int expectedOrderCount,

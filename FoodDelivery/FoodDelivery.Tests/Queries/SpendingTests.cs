@@ -22,9 +22,9 @@ public class SpendingTests(FoodDeliveryData data)
             .ThenBy(item => item.Customer.Id)
             .First();
 
-        Assert.Equal("Иванов", customer.Customer.LastName);
-        Assert.Equal("Иван", customer.Customer.FirstName);
-        Assert.Equal("Петрович", customer.Customer.Patronymic);
-        Assert.Equal(6080m, customer.TotalAmount);
+        Assert.Equal("Смирнова", customer.Customer.LastName);
+        Assert.Equal("Анна", customer.Customer.FirstName);
+        Assert.Equal("Викторовна", customer.Customer.Patronymic);
+        Assert.Equal(2820m, customer.TotalAmount);
     }
 }

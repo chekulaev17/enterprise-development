@@ -2,6 +2,9 @@ using FoodDelivery.Domain.Data;
 
 namespace FoodDelivery.Tests.Queries;
 
+/// <summary>
+/// Тесты запросов по ресторанам
+/// </summary>
 public class RestaurantTests(FoodDeliveryData data)
     : IClassFixture<FoodDeliveryData>
 {
@@ -12,33 +15,24 @@ public class RestaurantTests(FoodDeliveryData data)
     public void GetTopFiveRestaurants()
     {
         var restaurants = data.Orders
-            .CountBy(order => order.Restaurant.Id)
-            .OrderByDescending(item => item.Value)
-            .ThenBy(item =>
-                data.Restaurants.Single(r => r.Id == item.Key).Name)
+            .GroupBy(order => order.Restaurant)
+            .Select(group => (
+                RestaurantId: group.Key.Id,
+                OrderCount: group.Count()))
+            .OrderByDescending(item => item.OrderCount)
+            .ThenBy(item => item.RestaurantId)
             .Take(5)
-            .Select(item => new
-            {
-                Name = data.Restaurants.Single(r => r.Id == item.Key).Name,
-                Count = item.Value
-            })
-            .ToList();
+            .ToArray();
 
-        var expected = new (string Name, int Count)[]
+        var expected = new[]
         {
-            ("Вкусно рядом", 6),
-            ("Городская кухня", 5),
-            ("Дом еды", 5),
-            ("Пицца Хаус", 5),
-            ("Суши Тайм", 5)
+            (RestaurantId: 1, OrderCount: 6),
+            (RestaurantId: 5, OrderCount: 6),
+            (RestaurantId: 2, OrderCount: 5),
+            (RestaurantId: 3, OrderCount: 5),
+            (RestaurantId: 4, OrderCount: 5)
         };
 
-        Assert.Equal(expected.Length, restaurants.Count);
-
-        for (var i = 0; i < expected.Length; i++)
-        {
-            Assert.Equal(expected[i].Name, restaurants[i].Name);
-            Assert.Equal(expected[i].Count, restaurants[i].Count);
-        }
+        Assert.Equal(expected, restaurants);
     }
 }

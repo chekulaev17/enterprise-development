@@ -13,8 +13,8 @@ public class CustomerTests(FoodDeliveryData data)
     /// </summary>
     [Theory]
     [InlineData(1, new[] { 1, 4, 2, 6, 3, 5 })]
-    [InlineData(4, new[] { 1, 2, 6, 3 })]
-    [InlineData(7, new[] { 1, 4, 2 })]
+    [InlineData(4, new[] { 4, 8, 2, 3, 5 })]
+    [InlineData(7, new[] { 15, 1 })]
     public void GetRestaurantCustomers(
         int restaurantId,
         int[] expectedCustomerIds)

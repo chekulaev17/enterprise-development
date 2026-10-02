@@ -1,6 +1,3 @@
-using System.Linq;
-
-
 namespace FoodDelivery.Domain.Models;
 
 /// <summary>
@@ -36,7 +33,7 @@ public class Order
     /// <summary>
     /// Общая сумма заказа
     /// </summary>
-    public  decimal TotalAmount =>
+    public decimal TotalAmount =>
         Items.Sum(item => item.Dish.Price * item.Quantity);
 
     /// <summary>

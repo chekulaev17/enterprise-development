@@ -47,6 +47,8 @@ builder.Services.AddScoped<
 builder.Services.AddSingleton<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 
+builder.Services.AddScoped<IOrderItemService, OrderItemService>();
+
 var app = builder.Build();
 
 app.UseExceptionHandler();

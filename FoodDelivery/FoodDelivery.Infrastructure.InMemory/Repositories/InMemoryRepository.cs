@@ -13,7 +13,10 @@ public abstract class InMemoryRepository<TEntity>(
     Func<TEntity, int> getId) : IRepository<TEntity>
     where TEntity : class
 {
-    private readonly Lock _syncRoot = new();
+    /// <summary>
+    /// Объект синхронизации операций репозитория
+    /// </summary>
+    protected Lock SyncRoot { get; } = new();
 
     private int _lastId = entities
         .Select(getId)
@@ -23,7 +26,7 @@ public abstract class InMemoryRepository<TEntity>(
     /// <inheritdoc/>
     public IReadOnlyList<TEntity> GetAll()
     {
-        lock (_syncRoot)
+        lock (SyncRoot)
         {
             return [.. entities];
         }
@@ -32,7 +35,7 @@ public abstract class InMemoryRepository<TEntity>(
     /// <inheritdoc/>
     public TEntity? GetById(int id)
     {
-        lock (_syncRoot)
+        lock (SyncRoot)
         {
             return entities.FirstOrDefault(entity => getId(entity) == id);
         }
@@ -41,7 +44,7 @@ public abstract class InMemoryRepository<TEntity>(
     /// <inheritdoc/>
     public TEntity Add(TEntity entity)
     {
-        lock (_syncRoot)
+        lock (SyncRoot)
         {
             SetId(entity, ++_lastId);
             entities.Add(entity);
@@ -53,7 +56,7 @@ public abstract class InMemoryRepository<TEntity>(
     /// <inheritdoc/>
     public bool Update(TEntity entity)
     {
-        lock (_syncRoot)
+        lock (SyncRoot)
         {
             var id = getId(entity);
             var existingEntity = entities
@@ -73,7 +76,7 @@ public abstract class InMemoryRepository<TEntity>(
     /// <inheritdoc/>
     public void Delete(int id)
     {
-        lock (_syncRoot)
+        lock (SyncRoot)
         {
             entities.RemoveAll(entity => getId(entity) == id);
         }

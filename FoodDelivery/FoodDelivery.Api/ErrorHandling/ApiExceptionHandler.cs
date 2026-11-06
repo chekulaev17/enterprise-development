@@ -21,6 +21,9 @@ public sealed class ApiExceptionHandler(
     {
         var (statusCode, title) = exception switch
         {
+            ResourceNotFoundException => (
+                StatusCodes.Status404NotFound,
+                "Ресурс не найден"),
             ResourceConflictException => (
                 StatusCodes.Status409Conflict,
                 "Конфликт данных"),

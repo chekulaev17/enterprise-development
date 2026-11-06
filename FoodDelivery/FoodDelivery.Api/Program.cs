@@ -1,4 +1,5 @@
-﻿using FoodDelivery.Application.Contracts.Restaurants;
+﻿using FoodDelivery.Application.Contracts.Dishes;
+using FoodDelivery.Application.Contracts.Restaurants;
 using FoodDelivery.Application.Contracts.Customers;
 using FoodDelivery.Api.ErrorHandling;
 using FoodDelivery.Application.Contracts.Categories;
@@ -35,6 +36,12 @@ builder.Services.AddSingleton<IRestaurantRepository, RestaurantRepository>();
 builder.Services.AddScoped<
     ICrudService<RestaurantDto, RestaurantRequest>,
     RestaurantService>();
+
+builder.Services.AddSingleton<IDishRepository, DishRepository>();
+
+builder.Services.AddScoped<
+    ICrudService<DishDto, DishRequest>,
+    DishService>();
 
 var app = builder.Build();
 

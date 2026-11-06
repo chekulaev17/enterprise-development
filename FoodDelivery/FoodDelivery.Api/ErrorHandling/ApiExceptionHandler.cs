@@ -19,27 +19,35 @@ public sealed class ApiExceptionHandler(
         Exception exception,
         CancellationToken cancellationToken)
     {
-        var isConflict = exception is ResourceConflictException;
-
-        var statusCode = isConflict
-            ? StatusCodes.Status409Conflict
-            : StatusCodes.Status500InternalServerError;
-
-        if (isConflict)
+        var (statusCode, title) = exception switch
         {
-            logger.LogWarning(
-                exception,
-                "Конфликт при выполнении {Method} {Path}",
-                httpContext.Request.Method,
-                httpContext.Request.Path);
-        }
-        else
+            ResourceConflictException => (
+                StatusCodes.Status409Conflict,
+                "Конфликт данных"),
+            InvalidReferenceException => (
+                StatusCodes.Status422UnprocessableEntity,
+                "Некорректная связь между сущностями"),
+            _ => (
+                StatusCodes.Status500InternalServerError,
+                "Внутренняя ошибка сервера")
+        };
+
+        if (statusCode == StatusCodes.Status500InternalServerError)
         {
             logger.LogError(
                 exception,
                 "Ошибка при выполнении {Method} {Path}",
                 httpContext.Request.Method,
                 httpContext.Request.Path);
+        }
+        else
+        {
+            logger.LogWarning(
+                exception,
+                "Отклонён запрос {Method} {Path}, код ответа: {StatusCode}",
+                httpContext.Request.Method,
+                httpContext.Request.Path,
+                statusCode);
         }
 
         httpContext.Response.StatusCode = statusCode;
@@ -50,10 +58,10 @@ public sealed class ApiExceptionHandler(
             ProblemDetails = new ProblemDetails
             {
                 Status = statusCode,
-                Title = isConflict
-                    ? "Конфликт данных"
-                    : "Внутренняя ошибка сервера",
-                Detail = isConflict ? exception.Message : null,
+                Title = title,
+                Detail = statusCode == StatusCodes.Status500InternalServerError
+                    ? null
+                    : exception.Message,
                 Instance = httpContext.Request.Path.Value
             }
         });

@@ -78,7 +78,7 @@ public abstract class CrudControllerBase<TDto, TRequest>(
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
-    public ActionResult<TDto> Create([FromBody] TRequest request)
+    public virtual ActionResult<TDto> Create([FromBody] TRequest request)
     {
         var resource = service.Create(request);
         var id = GetResourceId(resource);
@@ -102,7 +102,7 @@ public abstract class CrudControllerBase<TDto, TRequest>(
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-    public ActionResult<TDto> Update(int id, [FromBody] TRequest request)
+    public virtual ActionResult<TDto> Update(int id, [FromBody] TRequest request)
     {
         var resource = service.Update(id, request);
 
@@ -153,4 +153,3 @@ public abstract class CrudControllerBase<TDto, TRequest>(
     /// <returns>Идентификатор ресурса</returns>
     protected abstract int GetResourceId(TDto resource);
 }
-

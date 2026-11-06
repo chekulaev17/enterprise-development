@@ -110,4 +110,29 @@ public sealed class CategoryRepositoryTests
         Assert.Null(repository.GetById(categoryId));
         Assert.Equal(initialCount - 1, repository.GetAll().Count);
     }
+
+    /// <summary>
+    /// Проверяет отражение добавления и удаления в коллекции приложения
+    /// </summary>
+    [Fact]
+    public void AddAndDelete_UpdateApplicationCollection()
+    {
+        var data = new FoodDeliveryData();
+        var repository = new CategoryRepository(data);
+
+        var category = repository.Add(new Category
+        {
+            Id = 0,
+            Name = "Новая категория"
+        });
+
+        Assert.Contains(data.Categories, item => ReferenceEquals(item, category));
+
+        repository.Delete(category.Id);
+
+        Assert.DoesNotContain(
+            data.Categories,
+            item => item.Id == category.Id);
+    }
 }
+

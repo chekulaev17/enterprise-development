@@ -5,6 +5,7 @@ using FoodDelivery.Application.Services;
 using FoodDelivery.Domain.Data;
 using FoodDelivery.Domain.Repositories;
 using FoodDelivery.Infrastructure.InMemory.Repositories;
+using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,6 +29,11 @@ app.UseExceptionHandler();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+
+    app.MapScalarApiReference(options =>
+    {
+        options.WithTitle("API службы доставки еды");
+    });
 }
 
 app.MapControllers();

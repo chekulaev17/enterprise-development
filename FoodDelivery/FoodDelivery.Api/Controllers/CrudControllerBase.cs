@@ -74,6 +74,7 @@ public abstract class CrudControllerBase<TDto, TRequest>(
     /// </summary>
     /// <param name="request">Данные нового ресурса</param>
     /// <returns>Созданный ресурс</returns>
+    [EndpointSummary("Создаёт ресурс")]
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
@@ -96,6 +97,7 @@ public abstract class CrudControllerBase<TDto, TRequest>(
     /// <param name="id">Идентификатор ресурса</param>
     /// <param name="request">Новые данные ресурса</param>
     /// <returns>Изменённый ресурс или сообщение об отсутствии</returns>
+    [EndpointSummary("Изменяет ресурс")]
     [HttpPut("{id:int}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
@@ -151,3 +153,4 @@ public abstract class CrudControllerBase<TDto, TRequest>(
     /// <returns>Идентификатор ресурса</returns>
     protected abstract int GetResourceId(TDto resource);
 }
+

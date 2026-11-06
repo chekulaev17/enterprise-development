@@ -1,4 +1,4 @@
-using FoodDelivery.Domain.Models;
+﻿using FoodDelivery.Domain.Models;
 
 namespace FoodDelivery.Domain.Data;
 
@@ -628,7 +628,9 @@ public class FoodDeliveryData
 
             items.Add(new OrderItem
             {
+                Id = i + 1,
                 Dish = dish,
+                UnitPrice = dish.Price,
                 Quantity = 1,
             });
         }

@@ -1,4 +1,4 @@
-namespace FoodDelivery.Domain.Models;
+﻿namespace FoodDelivery.Domain.Models;
 
 /// <summary>
 /// Заказ клиента в ресторане
@@ -34,7 +34,7 @@ public class Order
     /// Общая сумма заказа
     /// </summary>
     public decimal TotalAmount =>
-        Items.Sum(item => item.Dish.Price * item.Quantity);
+        Items.Sum(item => item.UnitPrice * item.Quantity);
 
     /// <summary>
     /// Список блюд в заказе

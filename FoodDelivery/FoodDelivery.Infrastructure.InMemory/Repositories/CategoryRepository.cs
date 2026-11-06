@@ -9,7 +9,7 @@ namespace FoodDelivery.Infrastructure.InMemory.Repositories;
 /// </summary>
 /// <param name="data">Начальные данные приложения</param>
 public sealed class CategoryRepository(FoodDeliveryData data)
-    : IRepository<Category>
+    : ICategoryRepository
 {
     private readonly List<Category> _categories = [.. data.Categories];
     private readonly Lock _syncRoot = new();
@@ -76,4 +76,11 @@ public sealed class CategoryRepository(FoodDeliveryData data)
             _categories.RemoveAll(category => category.Id == id);
         }
     }
+
+    /// <inheritdoc/>
+    public bool HasDishes(int categoryId)
+    {
+        return data.Dishes.Any(dish => dish.Category.Id == categoryId);
+    }
 }
+

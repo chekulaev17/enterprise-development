@@ -21,8 +21,8 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore FoodDelivery/FoodDelivery.slnx
 
-      - name: Build project
-        run: dotnet build FoodDelivery/FoodDelivery.slnx --no-restore --configuration Release
+      - name: Build solution
+        run: dotnet build FoodDelivery/FoodDelivery.slnx --configuration Release --no-restore
 
       - name: Run tests
-        run: dotnet test FoodDelivery/FoodDelivery.slnx --no-build --configuration Release --verbosity normal
+        run: dotnet test --solution FoodDelivery/FoodDelivery.slnx --configuration Release --no-build

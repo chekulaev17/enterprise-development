@@ -1,4 +1,5 @@
-﻿using FoodDelivery.Api.ErrorHandling;
+﻿using FoodDelivery.Application.Contracts.Customers;
+using FoodDelivery.Api.ErrorHandling;
 using FoodDelivery.Application.Contracts.Categories;
 using FoodDelivery.Application.Contracts.Common;
 using FoodDelivery.Application.Services;
@@ -22,6 +23,12 @@ builder.Services.AddScoped<
     ICrudService<CategoryDto, CategoryRequest>,
     CategoryService>();
 
+builder.Services.AddSingleton<ICustomerRepository, CustomerRepository>();
+
+builder.Services.AddScoped<
+    ICrudService<CustomerDto, CustomerRequest>,
+    CustomerService>();
+
 var app = builder.Build();
 
 app.UseExceptionHandler();
@@ -39,3 +46,4 @@ if (app.Environment.IsDevelopment())
 app.MapControllers();
 
 app.Run();
+

@@ -1,5 +1,4 @@
 ﻿using FoodDelivery.Application.Contracts.Categories;
-using FoodDelivery.Application.Contracts.Common;
 using FoodDelivery.Application.Exceptions;
 using FoodDelivery.Domain.Models;
 using FoodDelivery.Domain.Repositories;
@@ -11,52 +10,13 @@ namespace FoodDelivery.Application.Services;
 /// </summary>
 /// <param name="repository">Репозиторий категорий</param>
 public sealed class CategoryService(ICategoryRepository repository)
-    : ICrudService<CategoryDto, CategoryRequest>
+    : CrudServiceBase<Category, CategoryDto, CategoryRequest>
 {
     /// <inheritdoc/>
-    public IReadOnlyList<CategoryDto> GetAll()
-    {
-        return repository.GetAll()
-            .Select(ToDto)
-            .ToArray();
-    }
+    protected override IRepository<Category> Repository => repository;
 
     /// <inheritdoc/>
-    public CategoryDto? GetById(int id)
-    {
-        var category = repository.GetById(id);
-
-        return category is null ? null : ToDto(category);
-    }
-
-    /// <inheritdoc/>
-    public CategoryDto Create(CategoryRequest request)
-    {
-        var category = new Category
-        {
-            Id = 0,
-            Name = request.Name.Trim()
-        };
-
-        var createdCategory = repository.Add(category);
-
-        return ToDto(createdCategory);
-    }
-
-    /// <inheritdoc/>
-    public CategoryDto? Update(int id, CategoryRequest request)
-    {
-        var category = new Category
-        {
-            Id = id,
-            Name = request.Name.Trim()
-        };
-
-        return repository.Update(category) ? ToDto(category) : null;
-    }
-
-    /// <inheritdoc/>
-    public void Delete(int id)
+    public override void Delete(int id)
     {
         if (repository.HasDishes(id))
         {
@@ -64,15 +24,26 @@ public sealed class CategoryService(ICategoryRepository repository)
                 "Нельзя удалить категорию, которая используется блюдами");
         }
 
-        repository.Delete(id);
+        base.Delete(id);
     }
 
-    private static CategoryDto ToDto(Category category)
+    /// <inheritdoc/>
+    protected override CategoryDto ToDto(Category entity)
     {
         return new CategoryDto
         {
-            Id = category.Id,
-            Name = category.Name
+            Id = entity.Id,
+            Name = entity.Name
+        };
+    }
+
+    /// <inheritdoc/>
+    protected override Category ToEntity(CategoryRequest request, int id)
+    {
+        return new Category
+        {
+            Id = id,
+            Name = request.Name.Trim()
         };
     }
 }

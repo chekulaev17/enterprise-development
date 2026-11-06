@@ -135,4 +135,3 @@ public sealed class CategoryRepositoryTests
             item => item.Id == category.Id);
     }
 }
-

@@ -41,9 +41,10 @@ builder.Services.AddScoped<
 
 builder.Services.AddSingleton<IDishRepository, DishRepository>();
 
-builder.Services.AddScoped<
-    ICrudService<DishDto, DishRequest>,
-    DishService>();
+builder.Services.AddScoped<IDishService, DishService>();
+
+builder.Services.AddScoped<ICrudService<DishDto, DishRequest>>(
+    services => services.GetRequiredService<IDishService>());
 
 builder.Services.AddSingleton<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IOrderService, OrderService>();

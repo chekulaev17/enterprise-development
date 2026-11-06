@@ -13,4 +13,18 @@ public interface IDishRepository : IRepository<Dish>
     /// <param name="dishId">Идентификатор блюда</param>
     /// <returns>Признак использования блюда в заказах</returns>
     bool IsUsedInOrders(int dishId);
+
+    /// <summary>
+    /// Возвращает блюда категории
+    /// </summary>
+    /// <param name="categoryId">Идентификатор категории</param>
+    /// <returns>Блюда категории</returns>
+    IReadOnlyList<Dish> GetByCategory(int categoryId);
+
+    /// <summary>
+    /// Возвращает блюда ресторана
+    /// </summary>
+    /// <param name="restaurantId">Идентификатор ресторана</param>
+    /// <returns>Блюда ресторана</returns>
+    IReadOnlyList<Dish> GetByRestaurant(int restaurantId);
 }

@@ -38,4 +38,28 @@ public sealed class DishRepository(FoodDeliveryData data)
         existingEntity.Category = updatedEntity.Category;
         existingEntity.Restaurant = updatedEntity.Restaurant;
     }
+
+    /// <inheritdoc/>
+    public IReadOnlyList<Dish> GetByCategory(int categoryId)
+    {
+        lock (SyncRoot)
+        {
+            return data.Dishes
+                .Where(dish => dish.Category.Id == categoryId)
+                .OrderBy(dish => dish.Id)
+                .ToArray();
+        }
+    }
+
+    /// <inheritdoc/>
+    public IReadOnlyList<Dish> GetByRestaurant(int restaurantId)
+    {
+        lock (SyncRoot)
+        {
+            return data.Dishes
+                .Where(dish => dish.Restaurant.Id == restaurantId)
+                .OrderBy(dish => dish.Id)
+                .ToArray();
+        }
+    }
 }

@@ -15,7 +15,7 @@ public sealed class DishService(
     IDishRepository repository,
     ICategoryRepository categoryRepository,
     IRestaurantRepository restaurantRepository)
-    : CrudServiceBase<Dish, DishDto, DishRequest>
+    : CrudServiceBase<Dish, DishDto, DishRequest>, IDishService
 {
     /// <inheritdoc/>
     protected override IRepository<Dish> Repository => repository;
@@ -78,5 +78,33 @@ public sealed class DishService(
             Category = category,
             Restaurant = restaurant
         };
+    }
+
+    /// <inheritdoc/>
+    public IReadOnlyList<DishDto> GetByCategory(int categoryId)
+    {
+        if (categoryRepository.GetById(categoryId) is null)
+        {
+            throw new ResourceNotFoundException(
+                $"Категория с идентификатором {categoryId} не найдена");
+        }
+
+        return repository.GetByCategory(categoryId)
+            .Select(ToDto)
+            .ToArray();
+    }
+
+    /// <inheritdoc/>
+    public IReadOnlyList<DishDto> GetByRestaurant(int restaurantId)
+    {
+        if (restaurantRepository.GetById(restaurantId) is null)
+        {
+            throw new ResourceNotFoundException(
+                $"Ресторан с идентификатором {restaurantId} не найден");
+        }
+
+        return repository.GetByRestaurant(restaurantId)
+            .Select(ToDto)
+            .ToArray();
     }
 }

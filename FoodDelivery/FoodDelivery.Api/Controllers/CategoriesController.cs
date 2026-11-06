@@ -1,4 +1,6 @@
-﻿using FoodDelivery.Application.Contracts.Categories;
+﻿using Microsoft.AspNetCore.Mvc;
+using FoodDelivery.Application.Contracts.Dishes;
+using FoodDelivery.Application.Contracts.Categories;
 using FoodDelivery.Application.Contracts.Common;
 
 namespace FoodDelivery.Api.Controllers;
@@ -10,6 +12,7 @@ namespace FoodDelivery.Api.Controllers;
 /// <param name="logger">Средство журналирования</param>
 public sealed class CategoriesController(
     ICrudService<CategoryDto, CategoryRequest> service,
+    IDishService dishService,
     ILogger<CategoriesController> logger)
     : CrudControllerBase<CategoryDto, CategoryRequest>(service, logger)
 {
@@ -17,5 +20,25 @@ public sealed class CategoriesController(
     protected override int GetResourceId(CategoryDto resource)
     {
         return resource.Id;
+    }
+
+    /// <summary>
+    /// Возвращает блюда категории
+    /// </summary>
+    /// <param name="id">Идентификатор категории</param>
+    /// <returns>Блюда категории</returns>
+    [HttpGet("{id:int}/dishes")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    public ActionResult<IReadOnlyList<DishDto>> GetDishes(int id)
+    {
+        var dishes = dishService.GetByCategory(id);
+
+        logger.LogInformation(
+            "Получены блюда категории {CategoryId}, количество: {Count}",
+            id,
+            dishes.Count);
+
+        return Ok(dishes);
     }
 }

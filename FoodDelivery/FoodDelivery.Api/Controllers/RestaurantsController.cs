@@ -1,4 +1,5 @@
-﻿using FoodDelivery.Application.Contracts.Common;
+﻿using FoodDelivery.Application.Contracts.Dishes;
+using FoodDelivery.Application.Contracts.Common;
 using FoodDelivery.Application.Contracts.Orders;
 using FoodDelivery.Application.Contracts.Restaurants;
 using Microsoft.AspNetCore.Mvc;
@@ -14,6 +15,7 @@ namespace FoodDelivery.Api.Controllers;
 public sealed class RestaurantsController(
     ICrudService<RestaurantDto, RestaurantRequest> service,
     IOrderService orderService,
+    IDishService dishService,
     ILogger<RestaurantsController> logger)
     : CrudControllerBase<RestaurantDto, RestaurantRequest>(service, logger)
 {
@@ -41,5 +43,25 @@ public sealed class RestaurantsController(
     protected override int GetResourceId(RestaurantDto resource)
     {
         return resource.Id;
+    }
+
+    /// <summary>
+    /// Возвращает блюда ресторана
+    /// </summary>
+    /// <param name="id">Идентификатор ресторана</param>
+    /// <returns>Блюда ресторана</returns>
+    [HttpGet("{id:int}/dishes")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    public ActionResult<IReadOnlyList<DishDto>> GetDishes(int id)
+    {
+        var dishes = dishService.GetByRestaurant(id);
+
+        logger.LogInformation(
+            "Получены блюда ресторана {RestaurantId}, количество: {Count}",
+            id,
+            dishes.Count);
+
+        return Ok(dishes);
     }
 }

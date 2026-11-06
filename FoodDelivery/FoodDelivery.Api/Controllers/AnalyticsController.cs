@@ -12,7 +12,7 @@ namespace FoodDelivery.Api.Controllers;
 /// <param name="logger">Средство журналирования</param>
 [ApiController]
 [Route("api/analytics")]
-[ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+[ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError, "application/problem+json")]
 public sealed class AnalyticsController(
     IAnalyticsService service,
     ILogger<AnalyticsController> logger) : ControllerBase
@@ -58,7 +58,7 @@ public sealed class AnalyticsController(
     /// <returns>Клиенты ресторана без повторений</returns>
     [HttpGet("restaurants/{restaurantId:int}/customers")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound, "application/problem+json")]
     public ActionResult<IReadOnlyList<CustomerDto>> GetRestaurantCustomers(
         int restaurantId)
     {
@@ -83,7 +83,7 @@ public sealed class AnalyticsController(
     /// <returns>Статистика всех категорий, включая категории без заказов</returns>
     [HttpGet("category-statistics")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest, "application/problem+json")]
     public ActionResult<IReadOnlyList<CategoryOrderStatisticsDto>> GetCategoryStatistics(
         [FromQuery] OrderPeriodRequest request)
     {
@@ -105,7 +105,7 @@ public sealed class AnalyticsController(
     /// <returns>Сведения о клиенте и общая сумма его заказов</returns>
     [HttpGet("top-spending-customer")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound, "application/problem+json")]
     public ActionResult<CustomerSpendingDto> GetTopSpendingCustomer()
     {
         var result = service.GetTopSpendingCustomer();

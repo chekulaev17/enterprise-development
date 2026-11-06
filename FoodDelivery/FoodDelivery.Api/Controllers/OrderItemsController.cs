@@ -10,7 +10,7 @@ namespace FoodDelivery.Api.Controllers;
 /// <param name="logger">Средство журналирования</param>
 [ApiController]
 [Route("api/orders/{orderId:int}/items")]
-[ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+[ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError, "application/problem+json")]
 public sealed class OrderItemsController(
     IOrderItemService service,
     ILogger<OrderItemsController> logger) : ControllerBase
@@ -22,7 +22,7 @@ public sealed class OrderItemsController(
     /// <returns>Позиции заказа</returns>
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound, "application/problem+json")]
     public ActionResult<IReadOnlyList<OrderItemDto>> GetAll(int orderId)
     {
         var items = service.GetAll(orderId);
@@ -43,7 +43,7 @@ public sealed class OrderItemsController(
     /// <returns>Позиция заказа</returns>
     [HttpGet("{itemId:int}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound, "application/problem+json")]
     public ActionResult<OrderItemDto> GetById(int orderId, int itemId)
     {
         var item = service.GetById(orderId, itemId);
@@ -64,10 +64,10 @@ public sealed class OrderItemsController(
     /// <returns>Созданная позиция</returns>
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
-    [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
+    [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest, "application/problem+json")]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound, "application/problem+json")]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict, "application/problem+json")]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity, "application/problem+json")]
     public ActionResult<OrderItemDto> Create(
         int orderId,
         [FromBody] AddOrderItemRequest request)
@@ -93,9 +93,10 @@ public sealed class OrderItemsController(
     /// <param name="request">Новое количество</param>
     /// <returns>Изменённая позиция</returns>
     [HttpPut("{itemId:int}")]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity, "application/problem+json")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest, "application/problem+json")]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound, "application/problem+json")]
     public ActionResult<OrderItemDto> Update(
         int orderId,
         int itemId,

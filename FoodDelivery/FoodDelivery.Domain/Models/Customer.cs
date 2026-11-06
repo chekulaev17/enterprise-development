@@ -1,9 +1,9 @@
-namespace FoodDelivery.Domain.Models;
+﻿namespace FoodDelivery.Domain.Models;
 
 /// <summary>
 /// Клиент сервиса доставки
 /// </summary>
-public class Customer
+public sealed class Customer
 {
     /// <summary>
     /// Идентификатор клиента

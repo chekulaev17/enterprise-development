@@ -4,7 +4,7 @@
 /// Определяет операции хранения доменных сущностей
 /// </summary>
 /// <typeparam name="TEntity">Тип доменной сущности</typeparam>
-public interface IRepository<TEntity>
+public interface IRepository<TEntity> : IDataSession
     where TEntity : class
 {
     /// <summary>

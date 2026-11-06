@@ -24,7 +24,7 @@ public sealed class CustomersController(
     /// <returns>Заказы клиента</returns>
     [HttpGet("{id:int}/orders")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound, "application/problem+json")]
     public ActionResult<IReadOnlyList<OrderDto>> GetOrders(int id)
     {
         var orders = orderService.GetByCustomer(id);
@@ -41,5 +41,12 @@ public sealed class CustomersController(
     protected override int GetResourceId(CustomerDto resource)
     {
         return resource.Id;
+    }
+
+    /// <inheritdoc/>
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict, "application/problem+json")]
+    public override IActionResult Delete(int id)
+    {
+        return base.Delete(id);
     }
 }

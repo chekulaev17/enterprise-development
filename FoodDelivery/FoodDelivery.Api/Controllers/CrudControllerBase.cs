@@ -12,7 +12,7 @@ namespace FoodDelivery.Api.Controllers;
 /// <param name="logger">Средство журналирования</param>
 [ApiController]
 [Route("api/[controller]")]
-[ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+[ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError, "application/problem+json")]
 public abstract class CrudControllerBase<TDto, TRequest>(
     ICrudService<TDto, TRequest> service,
     ILogger logger) : ControllerBase
@@ -44,7 +44,7 @@ public abstract class CrudControllerBase<TDto, TRequest>(
     /// <returns>Найденный ресурс или сообщение об отсутствии</returns>
     [HttpGet("{id:int}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound, "application/problem+json")]
     public ActionResult<TDto> GetById(int id)
     {
         var resource = service.GetById(id);
@@ -77,7 +77,7 @@ public abstract class CrudControllerBase<TDto, TRequest>(
     [EndpointSummary("Создаёт ресурс")]
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
-    [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest, "application/problem+json")]
     public virtual ActionResult<TDto> Create([FromBody] TRequest request)
     {
         var resource = service.Create(request);
@@ -100,8 +100,8 @@ public abstract class CrudControllerBase<TDto, TRequest>(
     [EndpointSummary("Изменяет ресурс")]
     [HttpPut("{id:int}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest, "application/problem+json")]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound, "application/problem+json")]
     public virtual ActionResult<TDto> Update(int id, [FromBody] TRequest request)
     {
         var resource = service.Update(id, request);
@@ -133,8 +133,7 @@ public abstract class CrudControllerBase<TDto, TRequest>(
     /// <returns>Ответ без содержимого</returns>
     [HttpDelete("{id:int}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
-    public IActionResult Delete(int id)
+    public virtual IActionResult Delete(int id)
     {
         service.Delete(id);
 

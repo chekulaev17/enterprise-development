@@ -3,7 +3,7 @@
 /// <summary>
 /// Блюдо в составе заказа
 /// </summary>
-public class OrderItem
+public sealed class OrderItem
 {
     /// <summary>
     /// Идентификатор позиции внутри заказа

@@ -1,9 +1,9 @@
-namespace FoodDelivery.Domain.Models;
+﻿namespace FoodDelivery.Domain.Models;
 
 /// <summary>
 /// Блюдо из меню ресторана
 /// </summary>
-public class Dish
+public sealed class Dish
 {
     /// <summary>
     /// Идентификатор блюда

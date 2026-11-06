@@ -1,4 +1,6 @@
-﻿using FoodDelivery.Application.Exceptions;
+﻿using System.Text.Json;
+using FoodDelivery.Application.Exceptions;
+using FoodDelivery.Domain.Exceptions;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,6 +15,9 @@ public sealed class ApiExceptionHandler(
     ILogger<ApiExceptionHandler> logger,
     IProblemDetailsService problemDetailsService) : IExceptionHandler
 {
+    private static readonly JsonSerializerOptions JsonOptions =
+        new(JsonSerializerDefaults.Web);
+
     /// <inheritdoc/>
     public async ValueTask<bool> TryHandleAsync(
         HttpContext httpContext,
@@ -21,6 +26,9 @@ public sealed class ApiExceptionHandler(
     {
         var (statusCode, title) = exception switch
         {
+            OrderAmountException => (
+                StatusCodes.Status422UnprocessableEntity,
+                "Недопустимая сумма заказа"),
             ResourceNotFoundException => (
                 StatusCodes.Status404NotFound,
                 "Ресурс не найден"),
@@ -53,21 +61,35 @@ public sealed class ApiExceptionHandler(
                 statusCode);
         }
 
+        var problem = new ProblemDetails
+        {
+            Status = statusCode,
+            Title = title,
+            Detail = statusCode == StatusCodes.Status500InternalServerError
+                ? null
+                : exception.Message,
+            Instance = httpContext.Request.Path.Value
+        };
+
         httpContext.Response.StatusCode = statusCode;
 
-        await problemDetailsService.WriteAsync(new ProblemDetailsContext
-        {
-            HttpContext = httpContext,
-            ProblemDetails = new ProblemDetails
+        var written = await problemDetailsService.TryWriteAsync(
+            new ProblemDetailsContext
             {
-                Status = statusCode,
-                Title = title,
-                Detail = statusCode == StatusCodes.Status500InternalServerError
-                    ? null
-                    : exception.Message,
-                Instance = httpContext.Request.Path.Value
-            }
-        });
+                HttpContext = httpContext,
+                ProblemDetails = problem
+            });
+
+        if (!written)
+        {
+            httpContext.Response.ContentType = "application/problem+json";
+
+            await JsonSerializer.SerializeAsync(
+                httpContext.Response.Body,
+                problem,
+                JsonOptions,
+                cancellationToken);
+        }
 
         return true;
     }

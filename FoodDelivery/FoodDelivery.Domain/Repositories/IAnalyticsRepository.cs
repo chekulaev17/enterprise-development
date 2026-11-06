@@ -6,7 +6,7 @@ namespace FoodDelivery.Domain.Repositories;
 /// <summary>
 /// Определяет аналитические запросы службы доставки
 /// </summary>
-public interface IAnalyticsRepository
+public interface IAnalyticsRepository : IDataSession
 {
     /// <summary>
     /// Возвращает пять ресторанов с наибольшим количеством заказов

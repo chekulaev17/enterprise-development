@@ -11,14 +11,18 @@ namespace FoodDelivery.Infrastructure.InMemory.Repositories;
 public sealed class DishRepository(FoodDeliveryData data)
     : InMemoryRepository<Dish>(
         data.Dishes,
-        dish => dish.Id),
+        dish => dish.Id,
+        InMemorySynchronization.For(data)),
         IDishRepository
 {
     /// <inheritdoc/>
     public bool IsUsedInOrders(int dishId)
     {
-        return data.Orders.Any(
-            order => order.Items.Any(item => item.Dish.Id == dishId));
+        return this.Execute<bool>(() =>
+        {
+            return data.Orders.Any(
+                order => order.Items.Any(item => item.Dish.Id == dishId));
+        });
     }
 
     /// <inheritdoc/>

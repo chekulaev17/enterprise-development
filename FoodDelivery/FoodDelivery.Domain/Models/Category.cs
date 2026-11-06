@@ -1,9 +1,9 @@
-namespace FoodDelivery.Domain.Models;
+﻿namespace FoodDelivery.Domain.Models;
 
 /// <summary>
 /// Категория блюд
 /// </summary>
-public class Category
+public sealed class Category
 {
     /// <summary>
     /// Идентификатор категории

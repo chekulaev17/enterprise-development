@@ -23,13 +23,16 @@ public sealed class DishService(
     /// <inheritdoc/>
     public override void Delete(int id)
     {
-        if (repository.IsUsedInOrders(id))
+        repository.Execute(() =>
         {
-            throw new ResourceConflictException(
-                "Нельзя удалить блюдо, которое используется в заказах");
-        }
+            if (repository.IsUsedInOrders(id))
+            {
+                throw new ResourceConflictException(
+                    "Нельзя удалить блюдо, которое используется в заказах");
+            }
 
-        base.Delete(id);
+            base.Delete(id);
+        });
     }
 
     /// <inheritdoc/>
@@ -83,28 +86,34 @@ public sealed class DishService(
     /// <inheritdoc/>
     public IReadOnlyList<DishDto> GetByCategory(int categoryId)
     {
-        if (categoryRepository.GetById(categoryId) is null)
+        return repository.Execute<IReadOnlyList<DishDto>>(() =>
         {
-            throw new ResourceNotFoundException(
-                $"Категория с идентификатором {categoryId} не найдена");
-        }
+            if (categoryRepository.GetById(categoryId) is null)
+            {
+                throw new ResourceNotFoundException(
+                    $"Категория с идентификатором {categoryId} не найдена");
+            }
 
-        return repository.GetByCategory(categoryId)
-            .Select(ToDto)
-            .ToArray();
+            return repository.GetByCategory(categoryId)
+                .Select(ToDto)
+                .ToArray();
+        });
     }
 
     /// <inheritdoc/>
     public IReadOnlyList<DishDto> GetByRestaurant(int restaurantId)
     {
-        if (restaurantRepository.GetById(restaurantId) is null)
+        return repository.Execute<IReadOnlyList<DishDto>>(() =>
         {
-            throw new ResourceNotFoundException(
-                $"Ресторан с идентификатором {restaurantId} не найден");
-        }
+            if (restaurantRepository.GetById(restaurantId) is null)
+            {
+                throw new ResourceNotFoundException(
+                    $"Ресторан с идентификатором {restaurantId} не найден");
+            }
 
-        return repository.GetByRestaurant(restaurantId)
-            .Select(ToDto)
-            .ToArray();
+            return repository.GetByRestaurant(restaurantId)
+                .Select(ToDto)
+                .ToArray();
+        });
     }
 }

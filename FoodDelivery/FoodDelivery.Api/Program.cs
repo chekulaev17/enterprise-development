@@ -1,4 +1,6 @@
-﻿using FoodDelivery.Application.Contracts.Analytics;
+﻿using Microsoft.AspNetCore.Mvc.ApplicationModels;
+using FoodDelivery.Api;
+using FoodDelivery.Application.Contracts.Analytics;
 using FoodDelivery.Application.Contracts.Orders;
 using FoodDelivery.Application.Contracts.Dishes;
 using FoodDelivery.Application.Contracts.Restaurants;
@@ -14,8 +16,59 @@ using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
-builder.Services.AddOpenApi();
+builder.Services.AddControllers(options =>
+{
+    options.Conventions.Add(
+        new RouteTokenTransformerConvention(
+            new LowercaseRouteTransformer()));
+}).ConfigureApiBehaviorOptions(options =>
+{
+    options.InvalidModelStateResponseFactory = context =>
+    {
+        var problem = new Microsoft.AspNetCore.Mvc.ValidationProblemDetails(
+            context.ModelState)
+        {
+            Status = StatusCodes.Status400BadRequest,
+            Title = "Ошибка проверки входных данных",
+            Instance = context.HttpContext.Request.Path.Value
+        };
+
+        var result = new Microsoft.AspNetCore.Mvc.BadRequestObjectResult(problem);
+        result.ContentTypes.Add("application/problem+json");
+
+        return result;
+    };
+});
+builder.Services.AddOpenApi(options =>
+{
+    options.AddOperationTransformer((operation, context, cancellationToken) =>
+    {
+        if (operation.Responses is not null)
+        {
+            foreach (var response in operation.Responses)
+            {
+                var content = response.Value.Content;
+                var media = content?.Values.FirstOrDefault();
+
+                if (media is null)
+                {
+                    continue;
+                }
+
+                var isError = int.TryParse(response.Key, out var status)
+                    && status >= 400;
+
+                content!.Clear();
+
+                content[isError
+                    ? "application/problem+json"
+                    : "application/json"] = media;
+            }
+        }
+
+        return Task.CompletedTask;
+    });
+});
 
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<ApiExceptionHandler>();
@@ -53,6 +106,8 @@ builder.Services.AddScoped<IOrderItemService, OrderItemService>();
 
 builder.Services.AddSingleton<IAnalyticsRepository, AnalyticsRepository>();
 builder.Services.AddScoped<IAnalyticsService, AnalyticsService>();
+
+builder.Services.AddRouting(options => options.LowercaseUrls = true);
 
 var app = builder.Build();
 

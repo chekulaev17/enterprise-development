@@ -1,4 +1,4 @@
-using FoodDelivery.Domain.Data;
+﻿using FoodDelivery.Domain.Data;
 
 namespace FoodDelivery.Tests.Queries;
 
@@ -11,7 +11,7 @@ public class QueryTests(FoodDeliveryData data)
     private const int AmountPrecision = 2;
 
     /// <summary>
-    /// Проверяет количество, среднюю и общую сумму заказов выбранной категории за период
+    /// Проверяет статистику категории с 1 сентября до полуночи 20 сентября включительно
     /// </summary>
     [Theory]
     [InlineData(1, 3, 1000, 3000)]
@@ -24,7 +24,7 @@ public class QueryTests(FoodDeliveryData data)
         decimal expectedTotalAmount)
     {
         var startDate = new DateTime(2026, 9, 1);
-        var endDate = new DateTime(2026, 9, 20);
+        var endDate = new DateTime(2026, 9, 20, 0, 0, 0);
 
         var category = data.Categories
             .Single(item => item.Id == categoryId);
@@ -109,9 +109,9 @@ public class QueryTests(FoodDeliveryData data)
         };
 
         var restaurants = data.Orders
-            .GroupBy(order => order.Restaurant)
+            .GroupBy(order => order.Restaurant.Id)
             .Select(group => (
-                RestaurantId: group.Key.Id,
+                RestaurantId: group.Key,
                 OrderCount: group.Count()))
             .OrderByDescending(item => item.OrderCount)
             .ThenBy(item => item.RestaurantId)
@@ -128,16 +128,17 @@ public class QueryTests(FoodDeliveryData data)
     public void GetCustomerWithMaximumSpending()
     {
         var customer = data.Orders
-            .GroupBy(order => order.Customer)
+            .GroupBy(order => order.Customer.Id)
             .Select(group => new
             {
-                Customer = group.Key,
+                Customer = data.Customers.Single(item => item.Id == group.Key),
                 TotalAmount = group.Sum(order => order.TotalAmount)
             })
             .OrderByDescending(item => item.TotalAmount)
             .ThenBy(item => item.Customer.Id)
             .First();
 
+        Assert.Equal(5, customer.Customer.Id);
         Assert.Equal("Смирнова", customer.Customer.LastName);
         Assert.Equal("Анна", customer.Customer.FirstName);
         Assert.Equal("Викторовна", customer.Customer.Patronymic);

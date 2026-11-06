@@ -18,13 +18,16 @@ public sealed class CustomerService(ICustomerRepository repository)
     /// <inheritdoc/>
     public override void Delete(int id)
     {
-        if (repository.HasOrders(id))
+        repository.Execute(() =>
         {
-            throw new ResourceConflictException(
-                "Нельзя удалить клиента, у которого есть заказы");
-        }
+            if (repository.HasOrders(id))
+            {
+                throw new ResourceConflictException(
+                    "Нельзя удалить клиента, у которого есть заказы");
+            }
 
-        base.Delete(id);
+            base.Delete(id);
+        });
     }
 
     /// <inheritdoc/>

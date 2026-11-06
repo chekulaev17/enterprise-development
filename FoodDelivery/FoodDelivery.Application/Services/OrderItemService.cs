@@ -17,46 +17,55 @@ public sealed class OrderItemService(
     /// <inheritdoc/>
     public IReadOnlyList<OrderItemDto> GetAll(int orderId)
     {
-        var items = repository.GetItems(orderId)
-            ?? throw MissingOrder(orderId);
+        return repository.Execute<IReadOnlyList<OrderItemDto>>(() =>
+        {
+            var items = repository.GetItems(orderId)
+                ?? throw MissingOrder(orderId);
 
-        return items.Select(ToDto).ToArray();
+            return items.Select(ToDto).ToArray();
+        });
     }
 
     /// <inheritdoc/>
     public OrderItemDto GetById(int orderId, int itemId)
     {
-        var item = repository.GetItem(orderId, itemId)
-            ?? throw MissingItem(orderId, itemId);
+        return repository.Execute<OrderItemDto>(() =>
+        {
+            var item = repository.GetItem(orderId, itemId)
+                ?? throw MissingItem(orderId, itemId);
 
-        return ToDto(item);
+            return ToDto(item);
+        });
     }
 
     /// <inheritdoc/>
     public OrderItemDto Create(int orderId, AddOrderItemRequest request)
     {
-        var order = repository.GetById(orderId)
-            ?? throw MissingOrder(orderId);
-
-        var dish = dishRepository.GetById(request.DishId)
-            ?? throw new InvalidReferenceException(
-                $"Блюдо с идентификатором {request.DishId} не найдено");
-
-        if (dish.Restaurant.Id != order.Restaurant.Id)
+        return repository.Execute<OrderItemDto>(() =>
         {
-            throw new ResourceConflictException(
-                "Блюдо должно принадлежать ресторану заказа");
-        }
+            var order = repository.GetById(orderId)
+                ?? throw MissingOrder(orderId);
 
-        var position = repository.AddItem(orderId, new OrderItem
-        {
-            Id = 0,
-            Dish = dish,
-            Quantity = request.Quantity,
-            UnitPrice = dish.Price
-        }) ?? throw MissingOrder(orderId);
+            var dish = dishRepository.GetById(request.DishId)
+                ?? throw new InvalidReferenceException(
+                    $"Блюдо с идентификатором {request.DishId} не найдено");
 
-        return ToDto(position);
+            if (dish.Restaurant.Id != order.Restaurant.Id)
+            {
+                throw new ResourceConflictException(
+                    "Блюдо должно принадлежать ресторану заказа");
+            }
+
+            var position = repository.AddItem(orderId, new OrderItem
+            {
+                Id = 0,
+                Dish = dish,
+                Quantity = request.Quantity,
+                UnitPrice = dish.Price
+            }) ?? throw MissingOrder(orderId);
+
+            return ToDto(position);
+        });
     }
 
     /// <inheritdoc/>
@@ -65,16 +74,22 @@ public sealed class OrderItemService(
         int itemId,
         UpdateOrderItemRequest request)
     {
-        var item = repository.UpdateItem(orderId, itemId, request.Quantity)
-            ?? throw MissingItem(orderId, itemId);
+        return repository.Execute<OrderItemDto>(() =>
+        {
+            var item = repository.UpdateItem(orderId, itemId, request.Quantity)
+                ?? throw MissingItem(orderId, itemId);
 
-        return ToDto(item);
+            return ToDto(item);
+        });
     }
 
     /// <inheritdoc/>
     public void Delete(int orderId, int itemId)
     {
-        repository.DeleteItem(orderId, itemId);
+        repository.Execute(() =>
+        {
+            repository.DeleteItem(orderId, itemId);
+        });
     }
 
     private static OrderItemDto ToDto(OrderItem item)

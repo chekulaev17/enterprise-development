@@ -11,13 +11,17 @@ namespace FoodDelivery.Infrastructure.InMemory.Repositories;
 public sealed class CustomerRepository(FoodDeliveryData data)
     : InMemoryRepository<Customer>(
         data.Customers,
-        customer => customer.Id),
+        customer => customer.Id,
+        InMemorySynchronization.For(data)),
         ICustomerRepository
 {
     /// <inheritdoc/>
     public bool HasOrders(int customerId)
     {
-        return data.Orders.Any(order => order.Customer.Id == customerId);
+        return this.Execute<bool>(() =>
+        {
+            return data.Orders.Any(order => order.Customer.Id == customerId);
+        });
     }
 
     /// <inheritdoc/>

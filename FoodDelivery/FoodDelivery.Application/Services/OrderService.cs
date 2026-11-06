@@ -23,29 +23,35 @@ public sealed class OrderService(
     /// <inheritdoc/>
     public IReadOnlyList<OrderDto> GetByCustomer(int customerId)
     {
-        if (customerRepository.GetById(customerId) is null)
+        return repository.Execute<IReadOnlyList<OrderDto>>(() =>
         {
-            throw new ResourceNotFoundException(
-                $"Клиент с идентификатором {customerId} не найден");
-        }
+            if (customerRepository.GetById(customerId) is null)
+            {
+                throw new ResourceNotFoundException(
+                    $"Клиент с идентификатором {customerId} не найден");
+            }
 
-        return repository.GetByCustomer(customerId)
-            .Select(ToDto)
-            .ToArray();
+            return repository.GetByCustomer(customerId)
+                .Select(ToDto)
+                .ToArray();
+        });
     }
 
     /// <inheritdoc/>
     public IReadOnlyList<OrderDto> GetByRestaurant(int restaurantId)
     {
-        if (restaurantRepository.GetById(restaurantId) is null)
+        return repository.Execute<IReadOnlyList<OrderDto>>(() =>
         {
-            throw new ResourceNotFoundException(
-                $"Ресторан с идентификатором {restaurantId} не найден");
-        }
+            if (restaurantRepository.GetById(restaurantId) is null)
+            {
+                throw new ResourceNotFoundException(
+                    $"Ресторан с идентификатором {restaurantId} не найден");
+            }
 
-        return repository.GetByRestaurant(restaurantId)
-            .Select(ToDto)
-            .ToArray();
+            return repository.GetByRestaurant(restaurantId)
+                .Select(ToDto)
+                .ToArray();
+        });
     }
 
     /// <inheritdoc/>

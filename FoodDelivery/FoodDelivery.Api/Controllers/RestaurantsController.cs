@@ -11,6 +11,7 @@ namespace FoodDelivery.Api.Controllers;
 /// </summary>
 /// <param name="service">Прикладная служба ресторанов</param>
 /// <param name="orderService">Прикладная служба заказов</param>
+/// <param name="dishService">Прикладная служба блюд</param>
 /// <param name="logger">Средство журналирования</param>
 public sealed class RestaurantsController(
     ICrudService<RestaurantDto, RestaurantRequest> service,
@@ -26,7 +27,7 @@ public sealed class RestaurantsController(
     /// <returns>Заказы ресторана</returns>
     [HttpGet("{id:int}/orders")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound, "application/problem+json")]
     public ActionResult<IReadOnlyList<OrderDto>> GetOrders(int id)
     {
         var orders = orderService.GetByRestaurant(id);
@@ -52,7 +53,7 @@ public sealed class RestaurantsController(
     /// <returns>Блюда ресторана</returns>
     [HttpGet("{id:int}/dishes")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound, "application/problem+json")]
     public ActionResult<IReadOnlyList<DishDto>> GetDishes(int id)
     {
         var dishes = dishService.GetByRestaurant(id);
@@ -63,5 +64,12 @@ public sealed class RestaurantsController(
             dishes.Count);
 
         return Ok(dishes);
+    }
+
+    /// <inheritdoc/>
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict, "application/problem+json")]
+    public override IActionResult Delete(int id)
+    {
+        return base.Delete(id);
     }
 }

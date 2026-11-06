@@ -80,7 +80,7 @@ public sealed class AnalyticsRepositoryTests
     }
 
     /// <summary>
-    /// Проверяет статистику категории за выбранный период
+    /// Проверяет статистику категории до полуночи 20 сентября включительно
     /// </summary>
     [Fact]
     public void CategoryStatistics_ReturnsExpectedAmounts()
@@ -90,7 +90,7 @@ public sealed class AnalyticsRepositoryTests
 
         var statistics = repository.GetCategoryStatistics(
             new DateTime(2026, 9, 1),
-            new DateTime(2026, 9, 20));
+            new DateTime(2026, 9, 20, 0, 0, 0));
 
         var category = statistics.Single(item => item.Category.Id == 1);
 

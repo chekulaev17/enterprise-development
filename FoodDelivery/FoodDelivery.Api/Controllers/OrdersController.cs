@@ -14,15 +14,15 @@ public sealed class OrdersController(
     : CrudControllerBase<OrderDto, OrderRequest>(service, logger)
 {
     /// <inheritdoc/>
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity, "application/problem+json")]
     public override ActionResult<OrderDto> Create([FromBody] OrderRequest request)
     {
         return base.Create(request);
     }
 
     /// <inheritdoc/>
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity, "application/problem+json")]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict, "application/problem+json")]
     public override ActionResult<OrderDto> Update(
         int id,
         [FromBody] OrderRequest request)

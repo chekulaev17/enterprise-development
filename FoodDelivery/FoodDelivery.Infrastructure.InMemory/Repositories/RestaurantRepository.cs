@@ -11,19 +11,26 @@ namespace FoodDelivery.Infrastructure.InMemory.Repositories;
 public sealed class RestaurantRepository(FoodDeliveryData data)
     : InMemoryRepository<Restaurant>(
         data.Restaurants,
-        restaurant => restaurant.Id),
+        restaurant => restaurant.Id,
+        InMemorySynchronization.For(data)),
         IRestaurantRepository
 {
     /// <inheritdoc/>
     public bool HasDishes(int restaurantId)
     {
-        return data.Dishes.Any(dish => dish.Restaurant.Id == restaurantId);
+        return this.Execute<bool>(() =>
+        {
+            return data.Dishes.Any(dish => dish.Restaurant.Id == restaurantId);
+        });
     }
 
     /// <inheritdoc/>
     public bool HasOrders(int restaurantId)
     {
-        return data.Orders.Any(order => order.Restaurant.Id == restaurantId);
+        return this.Execute<bool>(() =>
+        {
+            return data.Orders.Any(order => order.Restaurant.Id == restaurantId);
+        });
     }
 
     /// <inheritdoc/>

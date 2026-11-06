@@ -1,9 +1,9 @@
-namespace FoodDelivery.Domain.Models;
+﻿namespace FoodDelivery.Domain.Models;
 
 /// <summary>
 /// Ресторан, который принимает заказы
 /// </summary>
-public class Restaurant
+public sealed class Restaurant
 {
     /// <summary>
     /// Идентификатор ресторана

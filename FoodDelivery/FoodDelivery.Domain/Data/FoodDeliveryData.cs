@@ -616,15 +616,15 @@ public class FoodDeliveryData
         int deliveryMinutes,
         params int[] dishIds)
     {
-        DateTime createdAt = new DateTime(2026, 9, 1)
+        var createdAt = new DateTime(2026, 9, 1)
             .AddDays(id - 1)
             .AddHours(12);
 
-        List<OrderItem> items = [];
+        var items = new List<OrderItem>();
 
-        for (int i = 0; i < dishIds.Length; i++)
+        for (var i = 0; i < dishIds.Length; i++)
         {
-            Dish dish = Dishes.Single(item => item.Id == dishIds[i]);
+            var dish = Dishes.Single(item => item.Id == dishIds[i]);
 
             items.Add(new OrderItem
             {

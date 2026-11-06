@@ -15,15 +15,15 @@ public sealed class DishesController(
     : CrudControllerBase<DishDto, DishRequest>(service, logger)
 {
     /// <inheritdoc/>
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity, "application/problem+json")]
     public override ActionResult<DishDto> Create([FromBody] DishRequest request)
     {
         return base.Create(request);
     }
 
     /// <inheritdoc/>
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity, "application/problem+json")]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict, "application/problem+json")]
     public override ActionResult<DishDto> Update(
         int id,
         [FromBody] DishRequest request)
@@ -35,5 +35,12 @@ public sealed class DishesController(
     protected override int GetResourceId(DishDto resource)
     {
         return resource.Id;
+    }
+
+    /// <inheritdoc/>
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict, "application/problem+json")]
+    public override IActionResult Delete(int id)
+    {
+        return base.Delete(id);
     }
 }

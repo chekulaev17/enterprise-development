@@ -11,13 +11,17 @@ namespace FoodDelivery.Infrastructure.InMemory.Repositories;
 public sealed class CategoryRepository(FoodDeliveryData data)
     : InMemoryRepository<Category>(
         data.Categories,
-        category => category.Id),
+        category => category.Id,
+        InMemorySynchronization.For(data)),
         ICategoryRepository
 {
     /// <inheritdoc/>
     public bool HasDishes(int categoryId)
     {
-        return data.Dishes.Any(dish => dish.Category.Id == categoryId);
+        return this.Execute<bool>(() =>
+        {
+            return data.Dishes.Any(dish => dish.Category.Id == categoryId);
+        });
     }
 
     /// <inheritdoc/>

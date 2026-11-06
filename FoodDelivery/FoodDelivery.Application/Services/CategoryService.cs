@@ -18,13 +18,16 @@ public sealed class CategoryService(ICategoryRepository repository)
     /// <inheritdoc/>
     public override void Delete(int id)
     {
-        if (repository.HasDishes(id))
+        repository.Execute(() =>
         {
-            throw new ResourceConflictException(
-                "Нельзя удалить категорию, которая используется блюдами");
-        }
+            if (repository.HasDishes(id))
+            {
+                throw new ResourceConflictException(
+                    "Нельзя удалить категорию, которая используется блюдами");
+            }
 
-        base.Delete(id);
+            base.Delete(id);
+        });
     }
 
     /// <inheritdoc/>

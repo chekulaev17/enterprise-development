@@ -18,13 +18,16 @@ public sealed class RestaurantService(IRestaurantRepository repository)
     /// <inheritdoc/>
     public override void Delete(int id)
     {
-        if (repository.HasDishes(id) || repository.HasOrders(id))
+        repository.Execute(() =>
         {
-            throw new ResourceConflictException(
-                "Нельзя удалить ресторан, у которого есть блюда или заказы");
-        }
+            if (repository.HasDishes(id) || repository.HasOrders(id))
+            {
+                throw new ResourceConflictException(
+                    "Нельзя удалить ресторан, у которого есть блюда или заказы");
+            }
 
-        base.Delete(id);
+            base.Delete(id);
+        });
     }
 
     /// <inheritdoc/>

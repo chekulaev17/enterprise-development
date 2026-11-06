@@ -23,40 +23,55 @@ public abstract class CrudServiceBase<TEntity, TDto, TRequest>
     /// <inheritdoc/>
     public IReadOnlyList<TDto> GetAll()
     {
-        return Repository.GetAll()
-            .Select(ToDto)
-            .ToArray();
+        return Repository.Execute<IReadOnlyList<TDto>>(() =>
+        {
+            return Repository.GetAll()
+                .Select(ToDto)
+                .ToArray();
+        });
     }
 
     /// <inheritdoc/>
     public TDto? GetById(int id)
     {
-        var entity = Repository.GetById(id);
+        return Repository.Execute<TDto?>(() =>
+        {
+            var entity = Repository.GetById(id);
 
-        return entity is null ? null : ToDto(entity);
+            return entity is null ? null : ToDto(entity);
+        });
     }
 
     /// <inheritdoc/>
     public TDto Create(TRequest request)
     {
-        var entity = ToEntity(request, 0);
-        var createdEntity = Repository.Add(entity);
+        return Repository.Execute<TDto>(() =>
+        {
+            var entity = ToEntity(request, 0);
+            var createdEntity = Repository.Add(entity);
 
-        return ToDto(createdEntity);
+            return ToDto(createdEntity);
+        });
     }
 
     /// <inheritdoc/>
     public TDto? Update(int id, TRequest request)
     {
-        var entity = ToEntity(request, id);
+        return Repository.Execute<TDto?>(() =>
+        {
+            var entity = ToEntity(request, id);
 
-        return Repository.Update(entity) ? ToDto(entity) : null;
+            return Repository.Update(entity) ? ToDto(entity) : null;
+        });
     }
 
     /// <inheritdoc/>
     public virtual void Delete(int id)
     {
-        Repository.Delete(id);
+        Repository.Execute(() =>
+        {
+            Repository.Delete(id);
+        });
     }
 
     /// <summary>

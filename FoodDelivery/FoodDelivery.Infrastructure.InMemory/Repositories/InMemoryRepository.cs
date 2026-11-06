@@ -7,16 +7,18 @@ namespace FoodDelivery.Infrastructure.InMemory.Repositories;
 /// </summary>
 /// <typeparam name="TEntity">Тип доменной сущности</typeparam>
 /// <param name="entities">Коллекция сущностей приложения</param>
-/// <param name="getId">Функция получения идентификатора сущности</param>
+/// <param name="getId">Функция получения идентификатора</param>
+/// <param name="syncRoot">Синхронизация общего графа данных</param>
 public abstract class InMemoryRepository<TEntity>(
     List<TEntity> entities,
-    Func<TEntity, int> getId) : IRepository<TEntity>
+    Func<TEntity, int> getId,
+    Lock syncRoot) : IRepository<TEntity>
     where TEntity : class
 {
     /// <summary>
     /// Объект синхронизации операций репозитория
     /// </summary>
-    protected Lock SyncRoot { get; } = new();
+    protected Lock SyncRoot { get; } = syncRoot;
 
     private int _lastId = entities
         .Select(getId)
@@ -46,8 +48,10 @@ public abstract class InMemoryRepository<TEntity>(
     {
         lock (SyncRoot)
         {
-            SetId(entity, ++_lastId);
+            var nextId = checked(_lastId + 1);
+            SetId(entity, nextId);
             entities.Add(entity);
+            _lastId = nextId;
 
             return entity;
         }
@@ -82,11 +86,29 @@ public abstract class InMemoryRepository<TEntity>(
         }
     }
 
+    /// <inheritdoc/>
+    public T Execute<T>(Func<T> operation)
+    {
+        lock (SyncRoot)
+        {
+            return operation();
+        }
+    }
+
+    /// <inheritdoc/>
+    public void Execute(Action operation)
+    {
+        lock (SyncRoot)
+        {
+            operation();
+        }
+    }
+
     /// <summary>
     /// Назначает идентификатор сущности
     /// </summary>
     /// <param name="entity">Сущность</param>
-    /// <param name="id">Назначаемый идентификатор</param>
+    /// <param name="id">Идентификатор</param>
     protected abstract void SetId(TEntity entity, int id);
 
     /// <summary>

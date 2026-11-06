@@ -3,7 +3,7 @@
 /// <summary>
 /// Заказ клиента в ресторане
 /// </summary>
-public class Order
+public sealed class Order
 {
     /// <summary>
     /// Идентификатор заказа

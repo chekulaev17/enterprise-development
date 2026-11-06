@@ -1,4 +1,5 @@
-﻿using FoodDelivery.Application.Contracts.Orders;
+﻿using FoodDelivery.Application.Contracts.Analytics;
+using FoodDelivery.Application.Contracts.Orders;
 using FoodDelivery.Application.Contracts.Dishes;
 using FoodDelivery.Application.Contracts.Restaurants;
 using FoodDelivery.Application.Contracts.Customers;
@@ -48,6 +49,9 @@ builder.Services.AddSingleton<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 
 builder.Services.AddScoped<IOrderItemService, OrderItemService>();
+
+builder.Services.AddSingleton<IAnalyticsRepository, AnalyticsRepository>();
+builder.Services.AddScoped<IAnalyticsService, AnalyticsService>();
 
 var app = builder.Build();
 

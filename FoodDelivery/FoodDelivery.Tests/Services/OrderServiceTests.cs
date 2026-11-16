@@ -135,7 +135,7 @@ public sealed class OrderServiceTests
         service.Delete(created.Id);
         service.Delete(created.Id);
 
-        Assert.Null(service.GetById(created.Id));
+        Assert.Throws<ResourceNotFoundException>(() => service.GetById(created.Id));
 
         Assert.DoesNotContain(
             service.GetByCustomer(created.CustomerId),

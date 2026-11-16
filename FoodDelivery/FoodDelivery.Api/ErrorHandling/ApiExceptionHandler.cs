@@ -1,6 +1,5 @@
 ﻿using System.Text.Json;
 using FoodDelivery.Application.Exceptions;
-using FoodDelivery.Domain.Exceptions;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 
@@ -26,9 +25,6 @@ public sealed class ApiExceptionHandler(
     {
         var (statusCode, title) = exception switch
         {
-            OrderAmountException => (
-                StatusCodes.Status422UnprocessableEntity,
-                "Недопустимая сумма заказа"),
             ResourceNotFoundException => (
                 StatusCodes.Status404NotFound,
                 "Ресурс не найден"),

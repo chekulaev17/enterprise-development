@@ -85,17 +85,16 @@ public sealed class AnalyticsService(
     }
 
     /// <inheritdoc/>
-    public CustomerSpendingDto? GetTopSpendingCustomer()
+    public CustomerSpendingDto GetTopSpendingCustomer()
     {
-        return repository.Execute<CustomerSpendingDto?>(() =>
+        return repository.Execute<CustomerSpendingDto>(() =>
         {
-            var result = repository.GetTopSpendingCustomer();
+            var result = repository.GetTopSpendingCustomer()
+                ?? throw new ResourceNotFoundException("В системе нет заказов");
 
-            return result is null
-                ? null
-                : new CustomerSpendingDto(
-                    ToCustomerDto(result.Customer),
-                    result.TotalAmount);
+            return new CustomerSpendingDto(
+                ToCustomerDto(result.Customer),
+                result.TotalAmount);
         });
     }
 

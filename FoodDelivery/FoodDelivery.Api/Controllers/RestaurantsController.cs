@@ -13,6 +13,8 @@ namespace FoodDelivery.Api.Controllers;
 /// <param name="orderService">Прикладная служба заказов</param>
 /// <param name="dishService">Прикладная служба блюд</param>
 /// <param name="logger">Средство журналирования</param>
+[Route("api/restaurants")]
+[ProducesActionProblem(nameof(RestaurantsController.Delete), StatusCodes.Status409Conflict)]
 public sealed class RestaurantsController(
     ICrudService<RestaurantDto, RestaurantRequest> service,
     IOrderService orderService,
@@ -64,12 +66,5 @@ public sealed class RestaurantsController(
             dishes.Count);
 
         return Ok(dishes);
-    }
-
-    /// <inheritdoc/>
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict, "application/problem+json")]
-    public override IActionResult Delete(int id)
-    {
-        return base.Delete(id);
     }
 }

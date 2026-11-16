@@ -11,6 +11,8 @@ namespace FoodDelivery.Api.Controllers;
 /// <param name="service">Прикладная служба клиентов</param>
 /// <param name="orderService">Прикладная служба заказов</param>
 /// <param name="logger">Средство журналирования</param>
+[Route("api/customers")]
+[ProducesActionProblem(nameof(CustomersController.Delete), StatusCodes.Status409Conflict)]
 public sealed class CustomersController(
     ICrudService<CustomerDto, CustomerRequest> service,
     IOrderService orderService,
@@ -41,12 +43,5 @@ public sealed class CustomersController(
     protected override int GetResourceId(CustomerDto resource)
     {
         return resource.Id;
-    }
-
-    /// <inheritdoc/>
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict, "application/problem+json")]
-    public override IActionResult Delete(int id)
-    {
-        return base.Delete(id);
     }
 }

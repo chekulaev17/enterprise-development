@@ -1,5 +1,4 @@
-﻿using FoodDelivery.Domain.Exceptions;
-using FoodDelivery.Domain.Data;
+﻿using FoodDelivery.Domain.Data;
 using FoodDelivery.Domain.Models;
 using FoodDelivery.Domain.Repositories;
 
@@ -92,7 +91,6 @@ public sealed class OrderRepository(FoodDeliveryData data)
                 UnitPrice = item.UnitPrice
             };
 
-            EnsureAmountFits(order, null, position.UnitPrice, position.Quantity);
             order.Items.Add(position);
             _lastItemIds[orderId] = nextId;
 
@@ -113,7 +111,6 @@ public sealed class OrderRepository(FoodDeliveryData data)
                 return null;
             }
 
-            EnsureAmountFits(order!, position, position.UnitPrice, quantity);
             position.Quantity = quantity;
 
             return position;
@@ -146,39 +143,5 @@ public sealed class OrderRepository(FoodDeliveryData data)
         existingEntity.Restaurant = updatedEntity.Restaurant;
         existingEntity.CreatedAt = updatedEntity.CreatedAt;
         existingEntity.DeliveredAt = updatedEntity.DeliveredAt;
-    }
-
-    private void EnsureAmountFits(
-        Order order,
-        OrderItem? previous,
-        decimal price,
-        int quantity)
-    {
-        if (price <= 0 || quantity <= 0)
-        {
-            throw new OrderAmountException(
-                "Цена и количество должны быть положительными");
-        }
-
-        try
-        {
-            var previousAmount = previous is null
-                ? 0m
-                : previous.UnitPrice * previous.Quantity;
-
-            var newAmount = checked(price * quantity);
-
-            _ = checked(order.TotalAmount - previousAmount + newAmount);
-
-            _ = checked(
-                data.Orders.Sum(item => item.TotalAmount)
-                - previousAmount
-                + newAmount);
-        }
-        catch (OverflowException)
-        {
-            throw new OrderAmountException(
-                "Сумма операции превышает допустимый диапазон decimal");
-        }
     }
 }

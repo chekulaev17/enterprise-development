@@ -11,7 +11,6 @@ namespace FoodDelivery.Api.Controllers;
 /// <param name="service">Прикладная служба ресурса</param>
 /// <param name="logger">Средство журналирования</param>
 [ApiController]
-[Route("api/[controller]")]
 [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError, "application/problem+json")]
 public abstract class CrudControllerBase<TDto, TRequest>(
     ICrudService<TDto, TRequest> service,
@@ -49,18 +48,6 @@ public abstract class CrudControllerBase<TDto, TRequest>(
     {
         var resource = service.GetById(id);
 
-        if (resource is null)
-        {
-            logger.LogInformation(
-                "Ресурс {ResourceType} с идентификатором {Id} не найден",
-                typeof(TDto).Name,
-                id);
-
-            return Problem(
-                statusCode: StatusCodes.Status404NotFound,
-                title: "Ресурс не найден");
-        }
-
         logger.LogInformation(
             "Получен ресурс {ResourceType} с идентификатором {Id}",
             typeof(TDto).Name,
@@ -78,7 +65,7 @@ public abstract class CrudControllerBase<TDto, TRequest>(
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest, "application/problem+json")]
-    public virtual ActionResult<TDto> Create([FromBody] TRequest request)
+    public ActionResult<TDto> Create([FromBody] TRequest request)
     {
         var resource = service.Create(request);
         var id = GetResourceId(resource);
@@ -102,21 +89,9 @@ public abstract class CrudControllerBase<TDto, TRequest>(
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest, "application/problem+json")]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound, "application/problem+json")]
-    public virtual ActionResult<TDto> Update(int id, [FromBody] TRequest request)
+    public ActionResult<TDto> Update(int id, [FromBody] TRequest request)
     {
         var resource = service.Update(id, request);
-
-        if (resource is null)
-        {
-            logger.LogInformation(
-                "Не найден ресурс {ResourceType} для изменения, идентификатор: {Id}",
-                typeof(TDto).Name,
-                id);
-
-            return Problem(
-                statusCode: StatusCodes.Status404NotFound,
-                title: "Ресурс не найден");
-        }
 
         logger.LogInformation(
             "Изменён ресурс {ResourceType} с идентификатором {Id}",
@@ -133,7 +108,7 @@ public abstract class CrudControllerBase<TDto, TRequest>(
     /// <returns>Ответ без содержимого</returns>
     [HttpDelete("{id:int}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public virtual IActionResult Delete(int id)
+    public IActionResult Delete(int id)
     {
         service.Delete(id);
 

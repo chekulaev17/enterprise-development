@@ -48,6 +48,6 @@ public sealed class CategoryServiceTests
         service.Delete(category.Id);
         service.Delete(category.Id);
 
-        Assert.Null(service.GetById(category.Id));
+        Assert.Throws<ResourceNotFoundException>(() => service.GetById(category.Id));
     }
 }

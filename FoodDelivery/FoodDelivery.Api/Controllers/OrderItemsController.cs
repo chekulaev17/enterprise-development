@@ -93,7 +93,6 @@ public sealed class OrderItemsController(
     /// <param name="request">Новое количество</param>
     /// <returns>Изменённая позиция</returns>
     [HttpPut("{itemId:int}")]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity, "application/problem+json")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest, "application/problem+json")]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound, "application/problem+json")]

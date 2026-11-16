@@ -36,6 +36,8 @@ public sealed class StorageConcurrencyTests
             Name = "Тестовая категория"
         });
 
+        var cancellationToken = TestContext.Current.CancellationToken;
+
         var create = Task.Run(() =>
         {
             try
@@ -52,7 +54,7 @@ public sealed class StorageConcurrencyTests
             catch (InvalidReferenceException)
             {
             }
-        });
+        }, cancellationToken);
 
         var delete = Task.Run(() =>
         {
@@ -63,7 +65,7 @@ public sealed class StorageConcurrencyTests
             catch (ResourceConflictException)
             {
             }
-        });
+        }, cancellationToken);
 
         await Task.WhenAll(create, delete);
 

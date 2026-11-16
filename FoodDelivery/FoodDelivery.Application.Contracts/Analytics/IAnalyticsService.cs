@@ -40,6 +40,6 @@ public interface IAnalyticsService
     /// <summary>
     /// Возвращает клиента с наибольшей суммой заказов
     /// </summary>
-    /// <returns>Клиент и сумма или null, если заказов нет</returns>
-    CustomerSpendingDto? GetTopSpendingCustomer();
+    /// <returns>Клиент и сумма его заказов</returns>
+    CustomerSpendingDto GetTopSpendingCustomer();
 }

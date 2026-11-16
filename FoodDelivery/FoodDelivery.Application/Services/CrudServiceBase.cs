@@ -1,4 +1,5 @@
 ﻿using FoodDelivery.Application.Contracts.Common;
+using FoodDelivery.Application.Exceptions;
 using FoodDelivery.Domain.Repositories;
 
 namespace FoodDelivery.Application.Services;
@@ -32,13 +33,13 @@ public abstract class CrudServiceBase<TEntity, TDto, TRequest>
     }
 
     /// <inheritdoc/>
-    public TDto? GetById(int id)
+    public TDto GetById(int id)
     {
-        return Repository.Execute<TDto?>(() =>
+        return Repository.Execute<TDto>(() =>
         {
-            var entity = Repository.GetById(id);
+            var entity = Repository.GetById(id) ?? throw MissingResource(id);
 
-            return entity is null ? null : ToDto(entity);
+            return ToDto(entity);
         });
     }
 
@@ -55,13 +56,20 @@ public abstract class CrudServiceBase<TEntity, TDto, TRequest>
     }
 
     /// <inheritdoc/>
-    public TDto? Update(int id, TRequest request)
+    public TDto Update(int id, TRequest request)
     {
-        return Repository.Execute<TDto?>(() =>
+        return Repository.Execute<TDto>(() =>
         {
+            if (Repository.GetById(id) is null)
+            {
+                throw MissingResource(id);
+            }
+
             var entity = ToEntity(request, id);
 
-            return Repository.Update(entity) ? ToDto(entity) : null;
+            Repository.Update(entity);
+
+            return ToDto(entity);
         });
     }
 
@@ -72,6 +80,11 @@ public abstract class CrudServiceBase<TEntity, TDto, TRequest>
         {
             Repository.Delete(id);
         });
+    }
+
+    private static ResourceNotFoundException MissingResource(int id)
+    {
+        return new ResourceNotFoundException($"Ресурс с идентификатором {id} не найден");
     }
 
     /// <summary>

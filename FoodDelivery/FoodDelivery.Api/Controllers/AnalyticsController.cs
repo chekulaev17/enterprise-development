@@ -2,6 +2,7 @@
 using FoodDelivery.Application.Contracts.Customers;
 using FoodDelivery.Application.Contracts.Orders;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace FoodDelivery.Api.Controllers;
 
@@ -79,22 +80,28 @@ public sealed class AnalyticsController(
     /// Учитывается полная сумма каждого заказа, содержащего блюда категории
     /// Смешанный заказ может учитываться в нескольких категориях
     /// </remarks>
-    /// <param name="request">Границы периода по времени оформления заказа</param>
+    /// <param name="start">Начало периода</param>
+    /// <param name="end">Конец периода</param>
     /// <returns>Статистика всех категорий, включая категории без заказов</returns>
     [HttpGet("category-statistics")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest, "application/problem+json")]
     public ActionResult<IReadOnlyList<CategoryOrderStatisticsDto>> GetCategoryStatistics(
-        [FromQuery] OrderPeriodRequest request)
+        [FromQuery, BindRequired] DateTime start,
+        [FromQuery, BindRequired] DateTime end)
     {
-        var result = service.GetCategoryStatistics(
-            request.Start!.Value,
-            request.End!.Value);
+        if (start > end)
+        {
+            ModelState.AddModelError(nameof(end), "Конец периода не может быть раньше начала");
+            return ValidationProblem();
+        }
+
+        var result = service.GetCategoryStatistics(start, end);
 
         logger.LogInformation(
             "Получена статистика категорий за период {Start} — {End}",
-            request.Start,
-            request.End);
+            start,
+            end);
 
         return Ok(result);
     }
@@ -109,16 +116,6 @@ public sealed class AnalyticsController(
     public ActionResult<CustomerSpendingDto> GetTopSpendingCustomer()
     {
         var result = service.GetTopSpendingCustomer();
-
-        if (result is null)
-        {
-            logger.LogInformation(
-                "Клиент с наибольшей суммой заказов отсутствует, заказов нет");
-
-            return Problem(
-                statusCode: StatusCodes.Status404NotFound,
-                title: "В системе нет заказов");
-        }
 
         logger.LogInformation(
             "Получен клиент {CustomerId} с суммой заказов {TotalAmount}",

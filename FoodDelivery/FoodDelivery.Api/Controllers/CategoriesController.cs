@@ -11,6 +11,8 @@ namespace FoodDelivery.Api.Controllers;
 /// <param name="service">Прикладная служба категорий</param>
 /// <param name="dishService">Прикладная служба блюд</param>
 /// <param name="logger">Средство журналирования</param>
+[Route("api/categories")]
+[ProducesActionProblem(nameof(CategoriesController.Delete), StatusCodes.Status409Conflict)]
 public sealed class CategoriesController(
     ICrudService<CategoryDto, CategoryRequest> service,
     IDishService dishService,
@@ -41,12 +43,5 @@ public sealed class CategoriesController(
             dishes.Count);
 
         return Ok(dishes);
-    }
-
-    /// <inheritdoc/>
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict, "application/problem+json")]
-    public override IActionResult Delete(int id)
-    {
-        return base.Delete(id);
     }
 }

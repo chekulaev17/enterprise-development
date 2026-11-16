@@ -19,8 +19,8 @@ public interface ICrudService<TDto, TRequest>
     /// Возвращает ресурс по идентификатору
     /// </summary>
     /// <param name="id">Идентификатор ресурса </param>
-    /// <returns>Ресурс или null, если он не найден </returns>
-    TDto? GetById(int id);
+    /// <returns>Найденный ресурс </returns>
+    TDto GetById(int id);
 
     /// <summary>
     /// Создаёт ресурс
@@ -34,8 +34,8 @@ public interface ICrudService<TDto, TRequest>
     /// </summary>
     /// <param name="id">Идентификатор ресурса </param>
     /// <param name="request">Новые данные ресурса </param>
-    /// <returns>Изменённый ресурс или null, если он не найден </returns>
-    TDto? Update(int id, TRequest request);
+    /// <returns>Изменённый ресурс </returns>
+    TDto Update(int id, TRequest request);
 
     /// <summary>
     /// Удаляет ресурс, если он существует 

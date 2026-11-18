@@ -180,6 +180,58 @@ public sealed class AnalyticsBoundaryTests
         Assert.Equal(300m, result.TotalAmount);
     }
 
+    /// <summary>
+    /// Исключает отрицательные сроки доставки и сохраняет все корректные минимумы
+    /// </summary>
+    [Theory]
+    [InlineData(0)]
+    [InlineData(10)]
+    public void MinimumDelivery_ExcludesNegativeDurations(int minimumMinutes)
+    {
+        var data = new FoodDeliveryData();
+        data.Orders.Clear();
+        var dish = data.Dishes.First();
+        var invalidOrder = CreateOrder(data, dish, 100m);
+        invalidOrder.Id = 1;
+        invalidOrder.DeliveredAt = invalidOrder.CreatedAt.AddMinutes(-5);
+        var firstMinimum = CreateOrder(data, dish, 100m);
+        firstMinimum.Id = 2;
+        firstMinimum.DeliveredAt = firstMinimum.CreatedAt.AddMinutes(minimumMinutes);
+        var secondMinimum = CreateOrder(data, dish, 100m);
+        secondMinimum.Id = 3;
+        secondMinimum.DeliveredAt = secondMinimum.CreatedAt.AddMinutes(minimumMinutes);
+        var slowerOrder = CreateOrder(data, dish, 100m);
+        slowerOrder.Id = 4;
+        slowerOrder.DeliveredAt = slowerOrder.CreatedAt.AddMinutes(minimumMinutes + 5);
+        var undeliveredOrder = CreateOrder(data, dish, 100m);
+        undeliveredOrder.Id = 5;
+        data.Orders.AddRange(
+            [invalidOrder, firstMinimum, secondMinimum, slowerOrder, undeliveredOrder]);
+
+        var result = new AnalyticsRepository(data).GetOrdersWithMinimumDeliveryTime();
+
+        Assert.Equal(new[] { 2, 3 }, result.Select(order => order.Id).ToArray());
+    }
+
+    /// <summary>
+    /// Возвращает пустую выборку, если корректных доставленных заказов нет
+    /// </summary>
+    [Fact]
+    public void MinimumDelivery_ReturnsEmptyForOnlyInvalidAndUndeliveredOrders()
+    {
+        var data = new FoodDeliveryData();
+        data.Orders.Clear();
+        var dish = data.Dishes.First();
+        var invalidOrder = CreateOrder(data, dish, 100m);
+        invalidOrder.DeliveredAt = invalidOrder.CreatedAt.AddMinutes(-1);
+        var undeliveredOrder = CreateOrder(data, dish, 100m);
+        data.Orders.AddRange([invalidOrder, undeliveredOrder]);
+
+        var result = new AnalyticsRepository(data).GetOrdersWithMinimumDeliveryTime();
+
+        Assert.Empty(result);
+    }
+
     private static Order CreateOrder(
         FoodDeliveryData data,
         Dish dish,

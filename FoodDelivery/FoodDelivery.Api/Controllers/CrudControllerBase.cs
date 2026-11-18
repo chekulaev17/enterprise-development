@@ -63,6 +63,7 @@ public abstract class CrudControllerBase<TDto, TRequest>(
     /// <returns>Созданный ресурс</returns>
     [EndpointSummary("Создаёт ресурс")]
     [HttpPost]
+    [ProducesDefaultResponseType(typeof(ProblemDetails))]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest, "application/problem+json")]
     public ActionResult<TDto> Create([FromBody] TRequest request)
@@ -86,6 +87,7 @@ public abstract class CrudControllerBase<TDto, TRequest>(
     /// <returns>Изменённый ресурс или сообщение об отсутствии</returns>
     [EndpointSummary("Изменяет ресурс")]
     [HttpPut("{id:int}")]
+    [ProducesDefaultResponseType(typeof(ProblemDetails))]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest, "application/problem+json")]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound, "application/problem+json")]
@@ -107,6 +109,7 @@ public abstract class CrudControllerBase<TDto, TRequest>(
     /// <param name="id">Идентификатор ресурса</param>
     /// <returns>Ответ без содержимого</returns>
     [HttpDelete("{id:int}")]
+    [ProducesDefaultResponseType(typeof(ProblemDetails))]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public IActionResult Delete(int id)
     {

@@ -38,7 +38,9 @@ public sealed class AnalyticsRepository(FoodDeliveryData data)
         return this.Execute<IReadOnlyList<Order>>(() =>
         {
             var deliveredOrders = data.Orders
-                .Where(order => order.DeliveredAt.HasValue)
+                .Where(order =>
+                    order.DeliveredAt.HasValue &&
+                    order.DeliveredAt.Value >= order.CreatedAt)
                 .ToArray();
 
             if (deliveredOrders.Length == 0)
@@ -47,11 +49,11 @@ public sealed class AnalyticsRepository(FoodDeliveryData data)
             }
 
             var minimumTime = deliveredOrders
-                .Min(order => order.DeliveredAt!.Value - order.CreatedAt);
+                .Min(order => order.DeliveredAt.GetValueOrDefault() - order.CreatedAt);
 
             return deliveredOrders
                 .Where(order =>
-                    order.DeliveredAt!.Value - order.CreatedAt == minimumTime)
+                    order.DeliveredAt.GetValueOrDefault() - order.CreatedAt == minimumTime)
                 .OrderBy(order => order.Id)
                 .ToArray();
         });

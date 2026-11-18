@@ -12,7 +12,6 @@ namespace FoodDelivery.Api.Controllers;
 /// <param name="dishService">Прикладная служба блюд</param>
 /// <param name="logger">Средство журналирования</param>
 [Route("api/categories")]
-[ProducesActionProblem(nameof(CategoriesController.Delete), StatusCodes.Status409Conflict)]
 public sealed class CategoriesController(
     ICrudService<CategoryDto, CategoryRequest> service,
     IDishService dishService,

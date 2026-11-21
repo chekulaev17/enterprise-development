@@ -12,5 +12,6 @@ public interface ICustomerRepository : IRepository<Customer>
     /// </summary>
     /// <param name="customerId">Идентификатор клиента</param>
     /// <returns>Признак наличия заказов</returns>
-    bool HasOrders(int customerId);
+    /// <param name="cancellationToken">Токен отмены операции</param>
+    public Task<bool> HasOrdersAsync(int customerId, CancellationToken cancellationToken = default);
 }

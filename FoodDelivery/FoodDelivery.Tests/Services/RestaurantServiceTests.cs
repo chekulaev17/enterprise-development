@@ -15,15 +15,16 @@ public sealed class RestaurantServiceTests
     /// Проверяет обновление ресторана без потери ссылки из заказа
     /// </summary>
     [Fact]
-    public void Update_PreservesRestaurantReferenceInOrder()
+    public async Task Update_PreservesRestaurantReferenceInOrder()
     {
+        var cancellationToken = TestContext.Current.CancellationToken;
         var data = new FoodDeliveryData();
         var repository = new RestaurantRepository(data);
         var service = new RestaurantService(repository);
         var order = data.Orders.First();
         var originalRestaurant = order.Restaurant;
 
-        var updatedRestaurant = service.Update(
+        var updatedRestaurant = await service.UpdateAsync(
             originalRestaurant.Id,
             new RestaurantRequest
             {
@@ -34,7 +35,7 @@ public sealed class RestaurantServiceTests
                     originalRestaurant.OpeningTime),
                 ClosingTime = TimeOnly.FromTimeSpan(
                     originalRestaurant.ClosingTime)
-            });
+            }, cancellationToken);
 
         Assert.NotNull(updatedRestaurant);
         Assert.Same(originalRestaurant, order.Restaurant);
@@ -46,8 +47,9 @@ public sealed class RestaurantServiceTests
     /// Проверяет запрет удаления ресторана с заказами при отсутствии блюд
     /// </summary>
     [Fact]
-    public void Delete_ThrowsConflictWhenRestaurantHasOrders()
+    public async Task Delete_ThrowsConflictWhenRestaurantHasOrders()
     {
+        var cancellationToken = TestContext.Current.CancellationToken;
         var data = new FoodDeliveryData();
         var restaurant = data.Orders.First().Restaurant;
 
@@ -60,8 +62,8 @@ public sealed class RestaurantServiceTests
         Assert.False(repository.HasDishes(restaurant.Id));
         Assert.True(repository.HasOrders(restaurant.Id));
 
-        Assert.Throws<ResourceConflictException>(
-            () => service.Delete(restaurant.Id));
+        await Assert.ThrowsAsync<ResourceConflictException>(
+            async () => await service.DeleteAsync(restaurant.Id, cancellationToken));
 
         Assert.Same(restaurant, repository.GetById(restaurant.Id));
     }

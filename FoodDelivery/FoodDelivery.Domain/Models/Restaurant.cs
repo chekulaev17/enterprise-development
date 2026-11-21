@@ -3,7 +3,7 @@
 /// <summary>
 /// Ресторан, который принимает заказы
 /// </summary>
-public sealed class Restaurant
+public sealed class Restaurant : IHasId
 {
     /// <summary>
     /// Идентификатор ресторана

@@ -12,19 +12,22 @@ public interface IDishRepository : IRepository<Dish>
     /// </summary>
     /// <param name="dishId">Идентификатор блюда</param>
     /// <returns>Признак использования блюда в заказах</returns>
-    bool IsUsedInOrders(int dishId);
+    /// <param name="cancellationToken">Токен отмены операции</param>
+    public Task<bool> IsUsedInOrdersAsync(int dishId, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Возвращает блюда категории
     /// </summary>
     /// <param name="categoryId">Идентификатор категории</param>
     /// <returns>Блюда категории</returns>
-    IReadOnlyList<Dish> GetByCategory(int categoryId);
+    /// <param name="cancellationToken">Токен отмены операции</param>
+    public Task<IReadOnlyList<Dish>> GetByCategoryAsync(int categoryId, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Возвращает блюда ресторана
     /// </summary>
     /// <param name="restaurantId">Идентификатор ресторана</param>
     /// <returns>Блюда ресторана</returns>
-    IReadOnlyList<Dish> GetByRestaurant(int restaurantId);
+    /// <param name="cancellationToken">Токен отмены операции</param>
+    public Task<IReadOnlyList<Dish>> GetByRestaurantAsync(int restaurantId, CancellationToken cancellationToken = default);
 }

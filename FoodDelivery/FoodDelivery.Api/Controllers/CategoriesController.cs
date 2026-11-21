@@ -29,12 +29,13 @@ public sealed class CategoriesController(
     /// </summary>
     /// <param name="id">Идентификатор категории</param>
     /// <returns>Блюда категории</returns>
+    /// <param name="cancellationToken">Токен отмены запроса</param>
     [HttpGet("{id:int}/dishes")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound, "application/problem+json")]
-    public ActionResult<IReadOnlyList<DishDto>> GetDishes(int id)
+    public async Task<ActionResult<IReadOnlyList<DishDto>>> GetDishes(int id, CancellationToken cancellationToken = default)
     {
-        var dishes = dishService.GetByCategory(id);
+        var dishes = await dishService.GetByCategoryAsync(id, cancellationToken);
 
         logger.LogInformation(
             "Получены блюда категории {CategoryId}, количество: {Count}",

@@ -3,8 +3,14 @@
 /// <summary>
 /// Заказ клиента в ресторане
 /// </summary>
-public sealed class Order
+public sealed class Order : IHasId
 {
+    /// <summary>Идентификатор клиента</summary>
+    public int CustomerId { get; set; }
+
+    /// <summary>Идентификатор ресторана</summary>
+    public int RestaurantId { get; set; }
+
     /// <summary>
     /// Идентификатор заказа
     /// </summary>

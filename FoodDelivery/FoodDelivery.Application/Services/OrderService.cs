@@ -11,47 +11,50 @@ namespace FoodDelivery.Application.Services;
 /// <param name="repository">Репозиторий заказов</param>
 /// <param name="customerRepository">Репозиторий клиентов</param>
 /// <param name="restaurantRepository">Репозиторий ресторанов</param>
+/// <param name="transaction">Транзакция записи связанных данных заказа</param>
 public sealed class OrderService(
     IOrderRepository repository,
     ICustomerRepository customerRepository,
-    IRestaurantRepository restaurantRepository)
+    IRestaurantRepository restaurantRepository,
+    IOrderWriteTransaction transaction)
     : CrudServiceBase<Order, OrderDto, OrderRequest>, IOrderService
 {
     /// <inheritdoc/>
     protected override IRepository<Order> Repository => repository;
 
     /// <inheritdoc/>
-    public IReadOnlyList<OrderDto> GetByCustomer(int customerId)
+    public override Task<OrderDto> UpdateAsync(
+        int id, OrderRequest request, CancellationToken cancellationToken = default)
     {
-        return repository.Execute<IReadOnlyList<OrderDto>>(() =>
-        {
-            if (customerRepository.GetById(customerId) is null)
-            {
-                throw new ResourceNotFoundException(
-                    $"Клиент с идентификатором {customerId} не найден");
-            }
-
-            return repository.GetByCustomer(customerId)
-                .Select(ToDto)
-                .ToArray();
-        });
+        return transaction.ExecuteAsync(token => base.UpdateAsync(id, request, token), cancellationToken);
     }
 
     /// <inheritdoc/>
-    public IReadOnlyList<OrderDto> GetByRestaurant(int restaurantId)
+    public async Task<IReadOnlyList<OrderDto>> GetByCustomerAsync(int customerId, CancellationToken cancellationToken = default)
     {
-        return repository.Execute<IReadOnlyList<OrderDto>>(() =>
+        if (await customerRepository.GetByIdAsync(customerId, cancellationToken) is null)
         {
-            if (restaurantRepository.GetById(restaurantId) is null)
-            {
-                throw new ResourceNotFoundException(
-                    $"Ресторан с идентификатором {restaurantId} не найден");
-            }
+            throw new ResourceNotFoundException(
+                $"Клиент с идентификатором {customerId} не найден");
+        }
 
-            return repository.GetByRestaurant(restaurantId)
-                .Select(ToDto)
-                .ToArray();
-        });
+        return (await repository.GetByCustomerAsync(customerId, cancellationToken))
+            .Select(ToDto)
+            .ToArray();
+    }
+
+    /// <inheritdoc/>
+    public async Task<IReadOnlyList<OrderDto>> GetByRestaurantAsync(int restaurantId, CancellationToken cancellationToken = default)
+    {
+        if (await restaurantRepository.GetByIdAsync(restaurantId, cancellationToken) is null)
+        {
+            throw new ResourceNotFoundException(
+                $"Ресторан с идентификатором {restaurantId} не найден");
+        }
+
+        return (await repository.GetByRestaurantAsync(restaurantId, cancellationToken))
+            .Select(ToDto)
+            .ToArray();
     }
 
     /// <inheritdoc/>
@@ -69,21 +72,23 @@ public sealed class OrderService(
     }
 
     /// <inheritdoc/>
-    protected override Order ToEntity(OrderRequest request, int id)
+    protected override async Task<Order> ToEntityAsync(
+        OrderRequest request,
+        int id,
+        Order? existing,
+        CancellationToken cancellationToken)
     {
-        var customer = customerRepository.GetById(request.CustomerId)
+        var customer = await customerRepository.GetByIdAsync(request.CustomerId, cancellationToken)
             ?? throw new InvalidReferenceException(
                 $"Клиент с идентификатором {request.CustomerId} не найден");
 
-        var restaurant = restaurantRepository.GetById(request.RestaurantId)
+        var restaurant = await restaurantRepository.GetByIdAsync(request.RestaurantId, cancellationToken)
             ?? throw new InvalidReferenceException(
                 $"Ресторан с идентификатором {request.RestaurantId} не найден");
 
-        var existingOrder = id == 0 ? null : repository.GetById(id);
-
-        if (existingOrder is not null &&
-            existingOrder.Items.Count > 0 &&
-            existingOrder.Restaurant.Id != restaurant.Id)
+        if (existing is not null &&
+            existing.Items.Count > 0 &&
+            existing.Restaurant.Id != restaurant.Id)
         {
             throw new ResourceConflictException(
                 "Нельзя изменить ресторан заказа, пока в заказе есть позиции");
@@ -92,11 +97,13 @@ public sealed class OrderService(
         return new Order
         {
             Id = id,
+            CustomerId = customer.Id,
+            RestaurantId = restaurant.Id,
             Customer = customer,
             Restaurant = restaurant,
             CreatedAt = request.CreatedAt,
             DeliveredAt = request.DeliveredAt,
-            Items = existingOrder?.Items ?? []
+            Items = existing?.Items ?? []
         };
     }
 }

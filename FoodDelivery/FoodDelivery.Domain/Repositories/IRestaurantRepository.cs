@@ -12,12 +12,14 @@ public interface IRestaurantRepository : IRepository<Restaurant>
     /// </summary>
     /// <param name="restaurantId">Идентификатор ресторана</param>
     /// <returns>Признак наличия блюд</returns>
-    bool HasDishes(int restaurantId);
+    /// <param name="cancellationToken">Токен отмены операции</param>
+    public Task<bool> HasDishesAsync(int restaurantId, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Проверяет наличие заказов ресторана
     /// </summary>
     /// <param name="restaurantId">Идентификатор ресторана</param>
     /// <returns>Признак наличия заказов</returns>
-    bool HasOrders(int restaurantId);
+    /// <param name="cancellationToken">Токен отмены операции</param>
+    public Task<bool> HasOrdersAsync(int restaurantId, CancellationToken cancellationToken = default);
 }

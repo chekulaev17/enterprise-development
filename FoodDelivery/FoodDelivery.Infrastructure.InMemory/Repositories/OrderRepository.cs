@@ -15,7 +15,11 @@ public sealed class OrderRepository(FoodDeliveryData data)
         InMemorySynchronization.For(data)),
         IOrderRepository
 {
-    private readonly Dictionary<int, int> _lastItemIds = [];
+    private int _lastItemId = data.Orders
+        .SelectMany(order => order.Items)
+        .Select(item => item.Id)
+        .DefaultIfEmpty()
+        .Max();
 
     /// <inheritdoc/>
     public IReadOnlyList<Order> GetByCustomer(int customerId)
@@ -73,26 +77,20 @@ public sealed class OrderRepository(FoodDeliveryData data)
                 return null;
             }
 
-            if (!_lastItemIds.TryGetValue(orderId, out var lastId))
-            {
-                lastId = order.Items
-                    .Select(position => position.Id)
-                    .DefaultIfEmpty()
-                    .Max();
-            }
-
-            var nextId = checked(lastId + 1);
+            var nextId = checked(_lastItemId + 1);
 
             var position = new OrderItem
             {
                 Id = nextId,
+                OrderId = orderId,
+                DishId = item.Dish.Id,
                 Dish = item.Dish,
                 Quantity = item.Quantity,
                 UnitPrice = item.UnitPrice
             };
 
             order.Items.Add(position);
-            _lastItemIds[orderId] = nextId;
+            _lastItemId = nextId;
 
             return position;
         }
@@ -143,5 +141,48 @@ public sealed class OrderRepository(FoodDeliveryData data)
         existingEntity.Restaurant = updatedEntity.Restaurant;
         existingEntity.CreatedAt = updatedEntity.CreatedAt;
         existingEntity.DeliveredAt = updatedEntity.DeliveredAt;
+    }
+
+    /// <inheritdoc/>
+    public Task<IReadOnlyList<Order>> GetByCustomerAsync(int customerId, CancellationToken cancellationToken = default)
+    {
+        return Task.FromResult(GetByCustomer(customerId));
+    }
+
+    /// <inheritdoc/>
+    public Task<IReadOnlyList<Order>> GetByRestaurantAsync(int restaurantId, CancellationToken cancellationToken = default)
+    {
+        return Task.FromResult(GetByRestaurant(restaurantId));
+    }
+
+    /// <inheritdoc/>
+    public Task<IReadOnlyList<OrderItem>?> GetItemsAsync(int orderId, CancellationToken cancellationToken = default)
+    {
+        return Task.FromResult(GetItems(orderId));
+    }
+
+    /// <inheritdoc/>
+    public Task<OrderItem?> GetItemAsync(int orderId, int itemId, CancellationToken cancellationToken = default)
+    {
+        return Task.FromResult(GetItem(orderId, itemId));
+    }
+
+    /// <inheritdoc/>
+    public Task<OrderItem?> AddItemAsync(int orderId, OrderItem item, CancellationToken cancellationToken = default)
+    {
+        return Task.FromResult(AddItem(orderId, item));
+    }
+
+    /// <inheritdoc/>
+    public Task<OrderItem?> UpdateItemAsync(int orderId, int itemId, int quantity, CancellationToken cancellationToken = default)
+    {
+        return Task.FromResult(UpdateItem(orderId, itemId, quantity));
+    }
+
+    /// <inheritdoc/>
+    public Task DeleteItemAsync(int orderId, int itemId, CancellationToken cancellationToken = default)
+    {
+        DeleteItem(orderId, itemId);
+        return Task.CompletedTask;
     }
 }

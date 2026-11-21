@@ -13,21 +13,24 @@ public interface ICrudService<TDto, TRequest>
     /// Возвращает все ресурсы
     /// </summary>
     /// <returns>Коллекция ресурсов </returns>
-    IReadOnlyList<TDto> GetAll();
+    /// <param name="cancellationToken">Токен отмены операции</param>
+    public Task<IReadOnlyList<TDto>> GetAllAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Возвращает ресурс по идентификатору
     /// </summary>
     /// <param name="id">Идентификатор ресурса </param>
     /// <returns>Найденный ресурс </returns>
-    TDto GetById(int id);
+    /// <param name="cancellationToken">Токен отмены операции</param>
+    public Task<TDto> GetByIdAsync(int id, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Создаёт ресурс
     /// </summary>
     /// <param name="request">Данные нового ресурса </param>
     /// <returns>Созданный ресурс с назначенным идентификатором </returns>
-    TDto Create(TRequest request);
+    /// <param name="cancellationToken">Токен отмены операции</param>
+    public Task<TDto> CreateAsync(TRequest request, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Изменяет существующий ресурс
@@ -35,11 +38,13 @@ public interface ICrudService<TDto, TRequest>
     /// <param name="id">Идентификатор ресурса </param>
     /// <param name="request">Новые данные ресурса </param>
     /// <returns>Изменённый ресурс </returns>
-    TDto Update(int id, TRequest request);
+    /// <param name="cancellationToken">Токен отмены операции</param>
+    public Task<TDto> UpdateAsync(int id, TRequest request, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Удаляет ресурс, если он существует 
     /// </summary>
     /// <param name="id">Идентификатор ресурса </param>
-    void Delete(int id);
+    /// <param name="cancellationToken">Токен отмены операции</param>
+    public Task DeleteAsync(int id, CancellationToken cancellationToken = default);
 }

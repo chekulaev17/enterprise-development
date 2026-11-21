@@ -16,18 +16,15 @@ public sealed class CategoryService(ICategoryRepository repository)
     protected override IRepository<Category> Repository => repository;
 
     /// <inheritdoc/>
-    public override void Delete(int id)
+    public override async Task DeleteAsync(int id, CancellationToken cancellationToken = default)
     {
-        repository.Execute(() =>
+        if (await repository.HasDishesAsync(id, cancellationToken))
         {
-            if (repository.HasDishes(id))
-            {
-                throw new ResourceConflictException(
-                    "Нельзя удалить категорию, которая используется блюдами");
-            }
+            throw new ResourceConflictException(
+                "Нельзя удалить категорию, которая используется блюдами");
+        }
 
-            base.Delete(id);
-        });
+        await base.DeleteAsync(id, cancellationToken);
     }
 
     /// <inheritdoc/>
@@ -41,12 +38,16 @@ public sealed class CategoryService(ICategoryRepository repository)
     }
 
     /// <inheritdoc/>
-    protected override Category ToEntity(CategoryRequest request, int id)
+    protected override Task<Category> ToEntityAsync(
+        CategoryRequest request,
+        int id,
+        Category? existing,
+        CancellationToken cancellationToken)
     {
-        return new Category
+        return Task.FromResult(new Category
         {
             Id = id,
             Name = request.Name.Trim()
-        };
+        });
     }
 }

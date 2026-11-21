@@ -3,7 +3,7 @@
 /// <summary>
 /// Категория блюд
 /// </summary>
-public sealed class Category
+public sealed class Category : IHasId
 {
     /// <summary>
     /// Идентификатор категории

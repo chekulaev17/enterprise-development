@@ -12,20 +12,23 @@ public interface IAnalyticsService
     /// Возвращает пять ресторанов с наибольшим количеством заказов
     /// </summary>
     /// <returns>Рестораны и количество заказов</returns>
-    IReadOnlyList<RestaurantOrderStatisticsDto> GetTopRestaurants();
+    /// <param name="cancellationToken">Токен отмены операции</param>
+    public Task<IReadOnlyList<RestaurantOrderStatisticsDto>> GetTopRestaurantsAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Возвращает все заказы с минимальным временем доставки
     /// </summary>
     /// <returns>Заказы с минимальным временем доставки</returns>
-    IReadOnlyList<OrderDto> GetOrdersWithMinimumDeliveryTime();
+    /// <param name="cancellationToken">Токен отмены операции</param>
+    public Task<IReadOnlyList<OrderDto>> GetOrdersWithMinimumDeliveryTimeAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Возвращает клиентов ресторана, упорядоченных по ФИО
     /// </summary>
     /// <param name="restaurantId">Идентификатор ресторана</param>
     /// <returns>Клиенты без повторений</returns>
-    IReadOnlyList<CustomerDto> GetRestaurantCustomers(int restaurantId);
+    /// <param name="cancellationToken">Токен отмены операции</param>
+    public Task<IReadOnlyList<CustomerDto>> GetRestaurantCustomersAsync(int restaurantId, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Возвращает статистику всех категорий за включительный период
@@ -33,13 +36,16 @@ public interface IAnalyticsService
     /// <param name="start">Начало периода</param>
     /// <param name="end">Конец периода</param>
     /// <returns>Статистика заказов по категориям</returns>
-    IReadOnlyList<CategoryOrderStatisticsDto> GetCategoryStatistics(
+    /// <param name="cancellationToken">Токен отмены операции</param>
+    public Task<IReadOnlyList<CategoryOrderStatisticsDto>> GetCategoryStatisticsAsync(
         DateTime start,
-        DateTime end);
+        DateTime end,
+        CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Возвращает клиента с наибольшей суммой заказов
     /// </summary>
     /// <returns>Клиент и сумма его заказов</returns>
-    CustomerSpendingDto GetTopSpendingCustomer();
+    /// <param name="cancellationToken">Токен отмены операции</param>
+    public Task<CustomerSpendingDto> GetTopSpendingCustomerAsync(CancellationToken cancellationToken = default);
 }

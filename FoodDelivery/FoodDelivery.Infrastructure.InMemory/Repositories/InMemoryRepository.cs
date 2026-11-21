@@ -119,4 +119,35 @@ public abstract class InMemoryRepository<TEntity>(
     protected abstract void UpdateEntity(
         TEntity existingEntity,
         TEntity updatedEntity);
+
+    /// <inheritdoc/>
+    public Task<IReadOnlyList<TEntity>> GetAllAsync(CancellationToken cancellationToken = default)
+    {
+        return Task.FromResult(GetAll());
+    }
+
+    /// <inheritdoc/>
+    public Task<TEntity?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
+    {
+        return Task.FromResult(GetById(id));
+    }
+
+    /// <inheritdoc/>
+    public Task<TEntity> AddAsync(TEntity entity, CancellationToken cancellationToken = default)
+    {
+        return Task.FromResult(Add(entity));
+    }
+
+    /// <inheritdoc/>
+    public Task<bool> UpdateAsync(TEntity entity, CancellationToken cancellationToken = default)
+    {
+        return Task.FromResult(Update(entity));
+    }
+
+    /// <inheritdoc/>
+    public Task DeleteAsync(int id, CancellationToken cancellationToken = default)
+    {
+        Delete(id);
+        return Task.CompletedTask;
+    }
 }

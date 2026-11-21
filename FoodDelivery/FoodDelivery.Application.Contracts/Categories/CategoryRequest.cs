@@ -11,5 +11,6 @@ public sealed class CategoryRequest
     /// Название категории
     /// </summary>
     [Required(ErrorMessage = "Укажите название категории.")]
+    [StringLength(100)]
     public required string Name { get; init; }
 }

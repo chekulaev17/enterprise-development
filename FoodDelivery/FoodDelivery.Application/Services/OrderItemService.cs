@@ -10,86 +10,82 @@ namespace FoodDelivery.Application.Services;
 /// </summary>
 /// <param name="repository">Репозиторий заказов</param>
 /// <param name="dishRepository">Репозиторий блюд</param>
+/// <param name="transaction">Транзакция записи связанных данных заказа</param>
 public sealed class OrderItemService(
     IOrderRepository repository,
-    IDishRepository dishRepository) : IOrderItemService
+    IDishRepository dishRepository,
+    IOrderWriteTransaction transaction) : IOrderItemService
 {
     /// <inheritdoc/>
-    public IReadOnlyList<OrderItemDto> GetAll(int orderId)
+    public async Task<IReadOnlyList<OrderItemDto>> GetAllAsync(int orderId, CancellationToken cancellationToken = default)
     {
-        return repository.Execute<IReadOnlyList<OrderItemDto>>(() =>
-        {
-            var items = repository.GetItems(orderId)
-                ?? throw MissingOrder(orderId);
+        var items = await repository.GetItemsAsync(orderId, cancellationToken)
+            ?? throw MissingOrder(orderId);
 
-            return items.Select(ToDto).ToArray();
-        });
+        return items.Select(ToDto).ToArray();
     }
 
     /// <inheritdoc/>
-    public OrderItemDto GetById(int orderId, int itemId)
+    public async Task<OrderItemDto> GetByIdAsync(int orderId, int itemId, CancellationToken cancellationToken = default)
     {
-        return repository.Execute<OrderItemDto>(() =>
-        {
-            var item = repository.GetItem(orderId, itemId)
-                ?? throw MissingItem(orderId, itemId);
+        var item = await repository.GetItemAsync(orderId, itemId, cancellationToken)
+            ?? throw MissingItem(orderId, itemId);
 
-            return ToDto(item);
-        });
+        return ToDto(item);
     }
 
     /// <inheritdoc/>
-    public OrderItemDto Create(int orderId, AddOrderItemRequest request)
+    public Task<OrderItemDto> CreateAsync(int orderId, AddOrderItemRequest request, CancellationToken cancellationToken = default)
     {
-        return repository.Execute<OrderItemDto>(() =>
+        return transaction.ExecuteAsync(token => AddItemAsync(orderId, request, token), cancellationToken);
+    }
+
+    private async Task<OrderItemDto> AddItemAsync(
+        int orderId, AddOrderItemRequest request, CancellationToken cancellationToken)
+    {
+        var order = await repository.GetByIdAsync(orderId, cancellationToken)
+            ?? throw MissingOrder(orderId);
+
+        var dish = await dishRepository.GetByIdAsync(request.DishId, cancellationToken)
+            ?? throw new InvalidReferenceException(
+                $"Блюдо с идентификатором {request.DishId} не найдено");
+
+        if (dish.Restaurant.Id != order.Restaurant.Id)
         {
-            var order = repository.GetById(orderId)
-                ?? throw MissingOrder(orderId);
+            throw new ResourceConflictException(
+                "Блюдо должно принадлежать ресторану заказа");
+        }
 
-            var dish = dishRepository.GetById(request.DishId)
-                ?? throw new InvalidReferenceException(
-                    $"Блюдо с идентификатором {request.DishId} не найдено");
+        var position = await repository.AddItemAsync(orderId, new OrderItem
+        {
+            Id = 0,
+            OrderId = orderId,
+            DishId = dish.Id,
+            Dish = dish,
+            Quantity = request.Quantity,
+            UnitPrice = dish.Price
+        }, cancellationToken) ?? throw MissingOrder(orderId);
 
-            if (dish.Restaurant.Id != order.Restaurant.Id)
-            {
-                throw new ResourceConflictException(
-                    "Блюдо должно принадлежать ресторану заказа");
-            }
-
-            var position = repository.AddItem(orderId, new OrderItem
-            {
-                Id = 0,
-                Dish = dish,
-                Quantity = request.Quantity,
-                UnitPrice = dish.Price
-            }) ?? throw MissingOrder(orderId);
-
-            return ToDto(position);
-        });
+        return ToDto(position);
     }
 
     /// <inheritdoc/>
-    public OrderItemDto Update(
+    public async Task<OrderItemDto> UpdateAsync(
         int orderId,
         int itemId,
-        UpdateOrderItemRequest request)
+        UpdateOrderItemRequest request,
+        CancellationToken cancellationToken = default)
     {
-        return repository.Execute<OrderItemDto>(() =>
-        {
-            var item = repository.UpdateItem(orderId, itemId, request.Quantity)
-                ?? throw MissingItem(orderId, itemId);
+        var item = await repository.UpdateItemAsync(orderId, itemId, request.Quantity, cancellationToken)
+            ?? throw MissingItem(orderId, itemId);
 
-            return ToDto(item);
-        });
+        return ToDto(item);
     }
 
     /// <inheritdoc/>
-    public void Delete(int orderId, int itemId)
+    public async Task DeleteAsync(int orderId, int itemId, CancellationToken cancellationToken = default)
     {
-        repository.Execute(() =>
-        {
-            repository.DeleteItem(orderId, itemId);
-        });
+        await repository.DeleteItemAsync(orderId, itemId, cancellationToken);
     }
 
     private static OrderItemDto ToDto(OrderItem item)

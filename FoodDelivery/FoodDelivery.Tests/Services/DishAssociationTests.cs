@@ -15,8 +15,9 @@ public sealed class DishAssociationTests
     /// Проверяет актуальность выборок после смены связей и удаления блюда
     /// </summary>
     [Fact]
-    public void Queries_ReflectUpdatedAndDeletedDish()
+    public async Task Queries_ReflectUpdatedAndDeletedDish()
     {
+        var cancellationToken = TestContext.Current.CancellationToken;
         var data = new FoodDeliveryData();
         var service = CreateService(data);
         var firstCategory = data.Categories[0];
@@ -24,58 +25,58 @@ public sealed class DishAssociationTests
         var firstRestaurant = data.Restaurants[0];
         var secondRestaurant = data.Restaurants[1];
 
-        var created = service.Create(new DishRequest
+        var created = await service.CreateAsync(new DishRequest
         {
             Name = "Свободное тестовое блюдо",
             Weight = 250,
             Price = 300m,
             CategoryId = firstCategory.Id,
             RestaurantId = firstRestaurant.Id
-        });
+        }, cancellationToken);
 
         Assert.Contains(
-            service.GetByCategory(firstCategory.Id),
+            await service.GetByCategoryAsync(firstCategory.Id, cancellationToken),
             dish => dish.Id == created.Id);
 
         Assert.Contains(
-            service.GetByRestaurant(firstRestaurant.Id),
+            await service.GetByRestaurantAsync(firstRestaurant.Id, cancellationToken),
             dish => dish.Id == created.Id);
 
-        var updated = service.Update(created.Id, new DishRequest
+        var updated = await service.UpdateAsync(created.Id, new DishRequest
         {
             Name = created.Name,
             Weight = created.Weight,
             Price = created.Price,
             CategoryId = secondCategory.Id,
             RestaurantId = secondRestaurant.Id
-        });
+        }, cancellationToken);
 
         Assert.NotNull(updated);
 
         Assert.DoesNotContain(
-            service.GetByCategory(firstCategory.Id),
+            await service.GetByCategoryAsync(firstCategory.Id, cancellationToken),
             dish => dish.Id == created.Id);
 
         Assert.DoesNotContain(
-            service.GetByRestaurant(firstRestaurant.Id),
+            await service.GetByRestaurantAsync(firstRestaurant.Id, cancellationToken),
             dish => dish.Id == created.Id);
 
         Assert.Contains(
-            service.GetByCategory(secondCategory.Id),
+            await service.GetByCategoryAsync(secondCategory.Id, cancellationToken),
             dish => dish.Id == created.Id);
 
         Assert.Contains(
-            service.GetByRestaurant(secondRestaurant.Id),
+            await service.GetByRestaurantAsync(secondRestaurant.Id, cancellationToken),
             dish => dish.Id == created.Id);
 
-        service.Delete(created.Id);
+        await service.DeleteAsync(created.Id, cancellationToken);
 
         Assert.DoesNotContain(
-            service.GetByCategory(secondCategory.Id),
+            await service.GetByCategoryAsync(secondCategory.Id, cancellationToken),
             dish => dish.Id == created.Id);
 
         Assert.DoesNotContain(
-            service.GetByRestaurant(secondRestaurant.Id),
+            await service.GetByRestaurantAsync(secondRestaurant.Id, cancellationToken),
             dish => dish.Id == created.Id);
     }
 
@@ -86,20 +87,21 @@ public sealed class DishAssociationTests
     [Theory]
     [InlineData(true)]
     [InlineData(false)]
-    public void Queries_RejectMissingParent(bool category)
+    public async Task Queries_RejectMissingParent(bool category)
     {
+        var cancellationToken = TestContext.Current.CancellationToken;
         var data = new FoodDeliveryData();
         var service = CreateService(data);
 
-        Assert.Throws<ResourceNotFoundException>(() =>
+        await Assert.ThrowsAsync<ResourceNotFoundException>(async () =>
         {
             if (category)
             {
-                service.GetByCategory(int.MaxValue);
+                await service.GetByCategoryAsync(int.MaxValue, cancellationToken);
             }
             else
             {
-                service.GetByRestaurant(int.MaxValue);
+                await service.GetByRestaurantAsync(int.MaxValue, cancellationToken);
             }
         });
     }
@@ -109,6 +111,7 @@ public sealed class DishAssociationTests
         return new DishService(
             new DishRepository(data),
             new CategoryRepository(data),
-            new RestaurantRepository(data));
+            new RestaurantRepository(data),
+            new InMemoryOrderWriteTransaction(data));
     }
 }

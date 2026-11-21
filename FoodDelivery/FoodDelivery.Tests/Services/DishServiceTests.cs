@@ -18,8 +18,9 @@ public sealed class DishServiceTests
     [Theory]
     [InlineData(true)]
     [InlineData(false)]
-    public void Create_RejectsMissingReference(bool missingCategory)
+    public async Task Create_RejectsMissingReference(bool missingCategory)
     {
+        var cancellationToken = TestContext.Current.CancellationToken;
         var data = new FoodDeliveryData();
         var service = CreateService(data);
         var initialCount = data.Dishes.Count;
@@ -37,8 +38,8 @@ public sealed class DishServiceTests
                 : int.MaxValue
         };
 
-        Assert.Throws<InvalidReferenceException>(
-            () => service.Create(request));
+        await Assert.ThrowsAsync<InvalidReferenceException>(
+            async () => await service.CreateAsync(request, cancellationToken));
 
         Assert.Equal(initialCount, data.Dishes.Count);
     }
@@ -47,8 +48,9 @@ public sealed class DishServiceTests
     /// Проверяет запрет удаления блюда из заказа
     /// </summary>
     [Fact]
-    public void Delete_RejectsDishUsedInOrder()
+    public async Task Delete_RejectsDishUsedInOrder()
     {
+        var cancellationToken = TestContext.Current.CancellationToken;
         var data = new FoodDeliveryData();
         var service = CreateService(data);
         var dish = data.Orders
@@ -56,8 +58,8 @@ public sealed class DishServiceTests
             .First()
             .Dish;
 
-        Assert.Throws<ResourceConflictException>(
-            () => service.Delete(dish.Id));
+        await Assert.ThrowsAsync<ResourceConflictException>(
+            async () => await service.DeleteAsync(dish.Id, cancellationToken));
 
         Assert.Contains(data.Dishes, item => ReferenceEquals(item, dish));
     }
@@ -66,8 +68,9 @@ public sealed class DishServiceTests
     /// Проверяет запрет смены ресторана блюда из заказа
     /// </summary>
     [Fact]
-    public void Update_RejectsRestaurantChangeForOrderedDish()
+    public async Task Update_RejectsRestaurantChangeForOrderedDish()
     {
+        var cancellationToken = TestContext.Current.CancellationToken;
         var data = new FoodDeliveryData();
         var service = CreateService(data);
         var dish = data.Orders
@@ -88,8 +91,8 @@ public sealed class DishServiceTests
             RestaurantId = otherRestaurant.Id
         };
 
-        Assert.Throws<ResourceConflictException>(
-            () => service.Update(dish.Id, request));
+        await Assert.ThrowsAsync<ResourceConflictException>(
+            async () => await service.UpdateAsync(dish.Id, request, cancellationToken));
 
         Assert.Same(originalRestaurant, dish.Restaurant);
     }
@@ -99,6 +102,7 @@ public sealed class DishServiceTests
         return new DishService(
             new DishRepository(data),
             new CategoryRepository(data),
-            new RestaurantRepository(data));
+            new RestaurantRepository(data),
+            new InMemoryOrderWriteTransaction(data));
     }
 }

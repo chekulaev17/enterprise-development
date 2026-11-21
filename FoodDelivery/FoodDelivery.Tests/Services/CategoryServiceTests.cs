@@ -15,15 +15,16 @@ public sealed class CategoryServiceTests
     /// Проверяет запрет удаления категории с блюдами
     /// </summary>
     [Fact]
-    public void Delete_ThrowsConflictWhenCategoryHasDishes()
+    public async Task Delete_ThrowsConflictWhenCategoryHasDishes()
     {
+        var cancellationToken = TestContext.Current.CancellationToken;
         var data = new FoodDeliveryData();
         var repository = new CategoryRepository(data);
         var service = new CategoryService(repository);
         var category = data.Dishes.First().Category;
 
-        Assert.Throws<ResourceConflictException>(
-            () => service.Delete(category.Id));
+        await Assert.ThrowsAsync<ResourceConflictException>(
+            async () => await service.DeleteAsync(category.Id, cancellationToken));
 
         Assert.Same(category, repository.GetById(category.Id));
     }
@@ -32,22 +33,23 @@ public sealed class CategoryServiceTests
     /// Проверяет создание и повторное удаление свободной категории
     /// </summary>
     [Fact]
-    public void Delete_AllowsRepeatedDeletionOfUnusedCategory()
+    public async Task Delete_AllowsRepeatedDeletionOfUnusedCategory()
     {
+        var cancellationToken = TestContext.Current.CancellationToken;
         var data = new FoodDeliveryData();
         var repository = new CategoryRepository(data);
         var service = new CategoryService(repository);
 
-        var category = service.Create(new CategoryRequest
+        var category = await service.CreateAsync(new CategoryRequest
         {
             Name = "  Новая категория  "
-        });
+        }, cancellationToken);
 
         Assert.Equal("Новая категория", category.Name);
 
-        service.Delete(category.Id);
-        service.Delete(category.Id);
+        await service.DeleteAsync(category.Id, cancellationToken);
+        await service.DeleteAsync(category.Id, cancellationToken);
 
-        Assert.Throws<ResourceNotFoundException>(() => service.GetById(category.Id));
+        await Assert.ThrowsAsync<ResourceNotFoundException>(async () => await service.GetByIdAsync(category.Id, cancellationToken));
     }
 }

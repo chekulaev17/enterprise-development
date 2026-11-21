@@ -20,12 +20,13 @@ public sealed class OrderItemsController(
     /// </summary>
     /// <param name="orderId">Идентификатор заказа</param>
     /// <returns>Позиции заказа</returns>
+    /// <param name="cancellationToken">Токен отмены запроса</param>
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound, "application/problem+json")]
-    public ActionResult<IReadOnlyList<OrderItemDto>> GetAll(int orderId)
+    public async Task<ActionResult<IReadOnlyList<OrderItemDto>>> GetAll(int orderId, CancellationToken cancellationToken = default)
     {
-        var items = service.GetAll(orderId);
+        var items = await service.GetAllAsync(orderId, cancellationToken);
 
         logger.LogInformation(
             "Получены позиции заказа {OrderId}, количество: {Count}",
@@ -41,12 +42,13 @@ public sealed class OrderItemsController(
     /// <param name="orderId">Идентификатор заказа</param>
     /// <param name="itemId">Идентификатор позиции</param>
     /// <returns>Позиция заказа</returns>
+    /// <param name="cancellationToken">Токен отмены запроса</param>
     [HttpGet("{itemId:int}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound, "application/problem+json")]
-    public ActionResult<OrderItemDto> GetById(int orderId, int itemId)
+    public async Task<ActionResult<OrderItemDto>> GetById(int orderId, int itemId, CancellationToken cancellationToken = default)
     {
-        var item = service.GetById(orderId, itemId);
+        var item = await service.GetByIdAsync(orderId, itemId, cancellationToken);
 
         logger.LogInformation(
             "Получена позиция {ItemId} заказа {OrderId}",
@@ -62,17 +64,19 @@ public sealed class OrderItemsController(
     /// <param name="orderId">Идентификатор заказа</param>
     /// <param name="request">Данные позиции</param>
     /// <returns>Созданная позиция</returns>
+    /// <param name="cancellationToken">Токен отмены запроса</param>
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest, "application/problem+json")]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound, "application/problem+json")]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict, "application/problem+json")]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity, "application/problem+json")]
-    public ActionResult<OrderItemDto> Create(
+    public async Task<ActionResult<OrderItemDto>> Create(
         int orderId,
-        [FromBody] AddOrderItemRequest request)
+        [FromBody] AddOrderItemRequest request,
+        CancellationToken cancellationToken = default)
     {
-        var item = service.Create(orderId, request);
+        var item = await service.CreateAsync(orderId, request, cancellationToken);
 
         logger.LogInformation(
             "Добавлена позиция {ItemId} в заказ {OrderId}",
@@ -92,16 +96,18 @@ public sealed class OrderItemsController(
     /// <param name="itemId">Идентификатор позиции</param>
     /// <param name="request">Новое количество</param>
     /// <returns>Изменённая позиция</returns>
+    /// <param name="cancellationToken">Токен отмены запроса</param>
     [HttpPut("{itemId:int}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest, "application/problem+json")]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound, "application/problem+json")]
-    public ActionResult<OrderItemDto> Update(
+    public async Task<ActionResult<OrderItemDto>> Update(
         int orderId,
         int itemId,
-        [FromBody] UpdateOrderItemRequest request)
+        [FromBody] UpdateOrderItemRequest request,
+        CancellationToken cancellationToken = default)
     {
-        var item = service.Update(orderId, itemId, request);
+        var item = await service.UpdateAsync(orderId, itemId, request, cancellationToken);
 
         logger.LogInformation(
             "Изменено количество в позиции {ItemId} заказа {OrderId}",
@@ -117,11 +123,12 @@ public sealed class OrderItemsController(
     /// <param name="orderId">Идентификатор заказа</param>
     /// <param name="itemId">Идентификатор позиции</param>
     /// <returns>Ответ без содержимого</returns>
+    /// <param name="cancellationToken">Токен отмены запроса</param>
     [HttpDelete("{itemId:int}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public IActionResult Delete(int orderId, int itemId)
+    public async Task<IActionResult> Delete(int orderId, int itemId, CancellationToken cancellationToken = default)
     {
-        service.Delete(orderId, itemId);
+        await service.DeleteAsync(orderId, itemId, cancellationToken);
 
         logger.LogInformation(
             "Выполнено удаление позиции {ItemId} заказа {OrderId}",

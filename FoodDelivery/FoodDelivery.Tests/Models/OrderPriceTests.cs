@@ -14,8 +14,9 @@ public sealed class OrderPriceTests
     /// Проверяет сохранение суммы заказа после изменения цены блюда
     /// </summary>
     [Fact]
-    public void TotalAmount_DoesNotChangeWhenDishPriceChanges()
+    public async Task TotalAmount_DoesNotChangeWhenDishPriceChanges()
     {
+        var cancellationToken = TestContext.Current.CancellationToken;
         var data = new FoodDeliveryData();
         var order = data.Orders.First();
         var item = order.Items.First();
@@ -27,9 +28,10 @@ public sealed class OrderPriceTests
         var service = new DishService(
             new DishRepository(data),
             new CategoryRepository(data),
-            new RestaurantRepository(data));
+            new RestaurantRepository(data),
+            new InMemoryOrderWriteTransaction(data));
 
-        var updatedDish = service.Update(
+        var updatedDish = await service.UpdateAsync(
             dish.Id,
             new DishRequest
             {
@@ -38,7 +40,7 @@ public sealed class OrderPriceTests
                 Price = newPrice,
                 CategoryId = dish.Category.Id,
                 RestaurantId = dish.Restaurant.Id
-            });
+            }, cancellationToken);
 
         Assert.NotNull(updatedDish);
         Assert.Equal(newPrice, dish.Price);
@@ -67,22 +69,15 @@ public sealed class OrderPriceTests
     }
 
     /// <summary>
-    /// Проверяет положительные и уникальные идентификаторы позиций внутри заказа
+    /// Проверяет положительные и уникальные идентификаторы позиций заказов
     /// </summary>
     [Fact]
-    public void Seed_AssignsUniqueItemIdsWithinEachOrder()
+    public void Seed_AssignsUniqueItemIds()
     {
         var data = new FoodDeliveryData();
+        var items = data.Orders.SelectMany(order => order.Items).ToArray();
 
-        Assert.All(data.Orders, order =>
-        {
-            Assert.All(
-                order.Items,
-                item => Assert.True(item.Id > 0));
-
-            Assert.Equal(
-                order.Items.Count,
-                order.Items.Select(item => item.Id).Distinct().Count());
-        });
+        Assert.All(items, item => Assert.True(item.Id > 0));
+        Assert.Equal(items.Length, items.Select(item => item.Id).Distinct().Count());
     }
 }

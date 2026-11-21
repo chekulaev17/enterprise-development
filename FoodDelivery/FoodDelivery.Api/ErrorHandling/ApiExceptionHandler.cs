@@ -2,6 +2,8 @@
 using FoodDelivery.Application.Exceptions;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using MySql.Data.MySqlClient;
 
 namespace FoodDelivery.Api.ErrorHandling;
 
@@ -28,6 +30,13 @@ public sealed class ApiExceptionHandler(
             ResourceNotFoundException => (
                 StatusCodes.Status404NotFound,
                 "Ресурс не найден"),
+            MySqlException { Number: 1205 or 1213 } or
+            DbUpdateException { InnerException: MySqlException { Number: 1205 or 1213 } } => (
+                StatusCodes.Status409Conflict,
+                "Данные изменяются другим запросом"),
+            DbUpdateException { InnerException: MySqlException { Number: 1451 or 1452 } } => (
+                StatusCodes.Status409Conflict,
+                "Операция нарушает связь между сущностями"),
             ResourceConflictException => (
                 StatusCodes.Status409Conflict,
                 "Конфликт данных"),
@@ -61,7 +70,7 @@ public sealed class ApiExceptionHandler(
         {
             Status = statusCode,
             Title = title,
-            Detail = statusCode == StatusCodes.Status500InternalServerError
+            Detail = exception is DbUpdateException or MySqlException || statusCode == StatusCodes.Status500InternalServerError
                 ? null
                 : exception.Message,
             Instance = httpContext.Request.Path.Value

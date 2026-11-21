@@ -12,12 +12,14 @@ public interface IDishService : ICrudService<DishDto, DishRequest>
     /// </summary>
     /// <param name="categoryId">Идентификатор категории</param>
     /// <returns>Блюда категории</returns>
-    IReadOnlyList<DishDto> GetByCategory(int categoryId);
+    /// <param name="cancellationToken">Токен отмены операции</param>
+    public Task<IReadOnlyList<DishDto>> GetByCategoryAsync(int categoryId, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Возвращает блюда ресторана
     /// </summary>
     /// <param name="restaurantId">Идентификатор ресторана</param>
     /// <returns>Блюда ресторана</returns>
-    IReadOnlyList<DishDto> GetByRestaurant(int restaurantId);
+    /// <param name="cancellationToken">Токен отмены операции</param>
+    public Task<IReadOnlyList<DishDto>> GetByRestaurantAsync(int restaurantId, CancellationToken cancellationToken = default);
 }

@@ -22,11 +22,12 @@ public sealed class AnalyticsController(
     /// Возвращает пять ресторанов с наибольшим количеством заказов
     /// </summary>
     /// <returns>Рестораны и количество заказов</returns>
+    /// <param name="cancellationToken">Токен отмены запроса</param>
     [HttpGet("top-restaurants")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public ActionResult<IReadOnlyList<RestaurantOrderStatisticsDto>> GetTopRestaurants()
+    public async Task<ActionResult<IReadOnlyList<RestaurantOrderStatisticsDto>>> GetTopRestaurants(CancellationToken cancellationToken = default)
     {
-        var result = service.GetTopRestaurants();
+        var result = await service.GetTopRestaurantsAsync(cancellationToken);
 
         logger.LogInformation(
             "Получен топ ресторанов, количество: {Count}",
@@ -39,11 +40,12 @@ public sealed class AnalyticsController(
     /// Возвращает все заказы с минимальным временем доставки
     /// </summary>
     /// <returns>Заказы с минимальным временем доставки</returns>
+    /// <param name="cancellationToken">Токен отмены запроса</param>
     [HttpGet("minimum-delivery-orders")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public ActionResult<IReadOnlyList<OrderDto>> GetMinimumDeliveryOrders()
+    public async Task<ActionResult<IReadOnlyList<OrderDto>>> GetMinimumDeliveryOrders(CancellationToken cancellationToken = default)
     {
-        var result = service.GetOrdersWithMinimumDeliveryTime();
+        var result = await service.GetOrdersWithMinimumDeliveryTimeAsync(cancellationToken);
 
         logger.LogInformation(
             "Получены заказы с минимальным временем доставки, количество: {Count}",
@@ -57,13 +59,15 @@ public sealed class AnalyticsController(
     /// </summary>
     /// <param name="restaurantId">Идентификатор ресторана</param>
     /// <returns>Клиенты ресторана без повторений</returns>
+    /// <param name="cancellationToken">Токен отмены запроса</param>
     [HttpGet("restaurants/{restaurantId:int}/customers")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound, "application/problem+json")]
-    public ActionResult<IReadOnlyList<CustomerDto>> GetRestaurantCustomers(
-        int restaurantId)
+    public async Task<ActionResult<IReadOnlyList<CustomerDto>>> GetRestaurantCustomers(
+        int restaurantId,
+        CancellationToken cancellationToken = default)
     {
-        var result = service.GetRestaurantCustomers(restaurantId);
+        var result = await service.GetRestaurantCustomersAsync(restaurantId, cancellationToken);
 
         logger.LogInformation(
             "Получены клиенты ресторана {RestaurantId}, количество: {Count}",
@@ -83,12 +87,14 @@ public sealed class AnalyticsController(
     /// <param name="start">Начало периода</param>
     /// <param name="end">Конец периода</param>
     /// <returns>Статистика всех категорий, включая категории без заказов</returns>
+    /// <param name="cancellationToken">Токен отмены запроса</param>
     [HttpGet("category-statistics")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest, "application/problem+json")]
-    public ActionResult<IReadOnlyList<CategoryOrderStatisticsDto>> GetCategoryStatistics(
+    public async Task<ActionResult<IReadOnlyList<CategoryOrderStatisticsDto>>> GetCategoryStatistics(
         [FromQuery, BindRequired] DateTime start,
-        [FromQuery, BindRequired] DateTime end)
+        [FromQuery, BindRequired] DateTime end,
+        CancellationToken cancellationToken = default)
     {
         if (start > end)
         {
@@ -96,7 +102,7 @@ public sealed class AnalyticsController(
             return ValidationProblem();
         }
 
-        var result = service.GetCategoryStatistics(start, end);
+        var result = await service.GetCategoryStatisticsAsync(start, end, cancellationToken);
 
         logger.LogInformation(
             "Получена статистика категорий за период {Start} — {End}",
@@ -110,12 +116,13 @@ public sealed class AnalyticsController(
     /// Возвращает клиента с наибольшей суммой заказов
     /// </summary>
     /// <returns>Сведения о клиенте и общая сумма его заказов</returns>
+    /// <param name="cancellationToken">Токен отмены запроса</param>
     [HttpGet("top-spending-customer")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound, "application/problem+json")]
-    public ActionResult<CustomerSpendingDto> GetTopSpendingCustomer()
+    public async Task<ActionResult<CustomerSpendingDto>> GetTopSpendingCustomer(CancellationToken cancellationToken = default)
     {
-        var result = service.GetTopSpendingCustomer();
+        var result = await service.GetTopSpendingCustomerAsync(cancellationToken);
 
         logger.LogInformation(
             "Получен клиент {CustomerId} с суммой заказов {TotalAmount}",

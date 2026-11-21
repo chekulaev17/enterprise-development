@@ -37,4 +37,10 @@ public sealed class CategoryRepository(FoodDeliveryData data)
     {
         existingEntity.Name = updatedEntity.Name;
     }
+
+    /// <inheritdoc/>
+    public Task<bool> HasDishesAsync(int categoryId, CancellationToken cancellationToken = default)
+    {
+        return Task.FromResult(HasDishes(categoryId));
+    }
 }

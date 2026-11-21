@@ -15,15 +15,16 @@ public sealed class CustomerServiceTests
     /// Проверяет обновление клиента без потери ссылки из заказа
     /// </summary>
     [Fact]
-    public void Update_PreservesCustomerReferenceInOrder()
+    public async Task Update_PreservesCustomerReferenceInOrder()
     {
+        var cancellationToken = TestContext.Current.CancellationToken;
         var data = new FoodDeliveryData();
         var repository = new CustomerRepository(data);
         var service = new CustomerService(repository);
         var order = data.Orders.First();
         var originalCustomer = order.Customer;
 
-        var updatedCustomer = service.Update(
+        var updatedCustomer = await service.UpdateAsync(
             originalCustomer.Id,
             new CustomerRequest
             {
@@ -32,7 +33,7 @@ public sealed class CustomerServiceTests
                 Patronymic = originalCustomer.Patronymic,
                 Phone = originalCustomer.Phone,
                 DeliveryAddress = originalCustomer.DeliveryAddress
-            });
+            }, cancellationToken);
 
         Assert.NotNull(updatedCustomer);
         Assert.Same(originalCustomer, order.Customer);
@@ -45,15 +46,16 @@ public sealed class CustomerServiceTests
     /// Проверяет запрет удаления клиента с заказами
     /// </summary>
     [Fact]
-    public void Delete_ThrowsConflictWhenCustomerHasOrders()
+    public async Task Delete_ThrowsConflictWhenCustomerHasOrders()
     {
+        var cancellationToken = TestContext.Current.CancellationToken;
         var data = new FoodDeliveryData();
         var repository = new CustomerRepository(data);
         var service = new CustomerService(repository);
         var customer = data.Orders.First().Customer;
 
-        Assert.Throws<ResourceConflictException>(
-            () => service.Delete(customer.Id));
+        await Assert.ThrowsAsync<ResourceConflictException>(
+            async () => await service.DeleteAsync(customer.Id, cancellationToken));
 
         Assert.Same(customer, repository.GetById(customer.Id));
     }

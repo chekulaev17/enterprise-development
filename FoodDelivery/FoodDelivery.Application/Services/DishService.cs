@@ -11,28 +11,34 @@ namespace FoodDelivery.Application.Services;
 /// <param name="repository">Репозиторий блюд</param>
 /// <param name="categoryRepository">Репозиторий категорий</param>
 /// <param name="restaurantRepository">Репозиторий ресторанов</param>
+/// <param name="transaction">Транзакция записи связанных данных заказа</param>
 public sealed class DishService(
     IDishRepository repository,
     ICategoryRepository categoryRepository,
-    IRestaurantRepository restaurantRepository)
+    IRestaurantRepository restaurantRepository,
+    IOrderWriteTransaction transaction)
     : CrudServiceBase<Dish, DishDto, DishRequest>, IDishService
 {
     /// <inheritdoc/>
     protected override IRepository<Dish> Repository => repository;
 
     /// <inheritdoc/>
-    public override void Delete(int id)
+    public override Task<DishDto> UpdateAsync(
+        int id, DishRequest request, CancellationToken cancellationToken = default)
     {
-        repository.Execute(() =>
-        {
-            if (repository.IsUsedInOrders(id))
-            {
-                throw new ResourceConflictException(
-                    "Нельзя удалить блюдо, которое используется в заказах");
-            }
+        return transaction.ExecuteAsync(token => base.UpdateAsync(id, request, token), cancellationToken);
+    }
 
-            base.Delete(id);
-        });
+    /// <inheritdoc/>
+    public override async Task DeleteAsync(int id, CancellationToken cancellationToken = default)
+    {
+        if (await repository.IsUsedInOrdersAsync(id, cancellationToken))
+        {
+            throw new ResourceConflictException(
+                "Нельзя удалить блюдо, которое используется в заказах");
+        }
+
+        await base.DeleteAsync(id, cancellationToken);
     }
 
     /// <inheritdoc/>
@@ -50,26 +56,25 @@ public sealed class DishService(
     }
 
     /// <inheritdoc/>
-    protected override Dish ToEntity(DishRequest request, int id)
+    protected override async Task<Dish> ToEntityAsync(
+        DishRequest request,
+        int id,
+        Dish? existing,
+        CancellationToken cancellationToken)
     {
-        var category = categoryRepository.GetById(request.CategoryId)
+        var category = await categoryRepository.GetByIdAsync(request.CategoryId, cancellationToken)
             ?? throw new InvalidReferenceException(
                 $"Категория с идентификатором {request.CategoryId} не найдена");
 
-        var restaurant = restaurantRepository.GetById(request.RestaurantId)
+        var restaurant = await restaurantRepository.GetByIdAsync(request.RestaurantId, cancellationToken)
             ?? throw new InvalidReferenceException(
                 $"Ресторан с идентификатором {request.RestaurantId} не найден");
 
-        if (id > 0 && repository.IsUsedInOrders(id))
+        if (existing is not null && existing.Restaurant.Id != restaurant.Id &&
+            await repository.IsUsedInOrdersAsync(id, cancellationToken))
         {
-            var existingDish = repository.GetById(id);
-
-            if (existingDish is not null &&
-                existingDish.Restaurant.Id != restaurant.Id)
-            {
-                throw new ResourceConflictException(
-                    "Нельзя изменить ресторан блюда, которое используется в заказах");
-            }
+            throw new ResourceConflictException(
+                "Нельзя изменить ресторан блюда, которое используется в заказах");
         }
 
         return new Dish
@@ -78,42 +83,38 @@ public sealed class DishService(
             Name = request.Name.Trim(),
             Weight = request.Weight,
             Price = request.Price,
+            CategoryId = category.Id,
+            RestaurantId = restaurant.Id,
             Category = category,
             Restaurant = restaurant
         };
     }
 
     /// <inheritdoc/>
-    public IReadOnlyList<DishDto> GetByCategory(int categoryId)
+    public async Task<IReadOnlyList<DishDto>> GetByCategoryAsync(int categoryId, CancellationToken cancellationToken = default)
     {
-        return repository.Execute<IReadOnlyList<DishDto>>(() =>
+        if (await categoryRepository.GetByIdAsync(categoryId, cancellationToken) is null)
         {
-            if (categoryRepository.GetById(categoryId) is null)
-            {
-                throw new ResourceNotFoundException(
-                    $"Категория с идентификатором {categoryId} не найдена");
-            }
+            throw new ResourceNotFoundException(
+                $"Категория с идентификатором {categoryId} не найдена");
+        }
 
-            return repository.GetByCategory(categoryId)
-                .Select(ToDto)
-                .ToArray();
-        });
+        return (await repository.GetByCategoryAsync(categoryId, cancellationToken))
+            .Select(ToDto)
+            .ToArray();
     }
 
     /// <inheritdoc/>
-    public IReadOnlyList<DishDto> GetByRestaurant(int restaurantId)
+    public async Task<IReadOnlyList<DishDto>> GetByRestaurantAsync(int restaurantId, CancellationToken cancellationToken = default)
     {
-        return repository.Execute<IReadOnlyList<DishDto>>(() =>
+        if (await restaurantRepository.GetByIdAsync(restaurantId, cancellationToken) is null)
         {
-            if (restaurantRepository.GetById(restaurantId) is null)
-            {
-                throw new ResourceNotFoundException(
-                    $"Ресторан с идентификатором {restaurantId} не найден");
-            }
+            throw new ResourceNotFoundException(
+                $"Ресторан с идентификатором {restaurantId} не найден");
+        }
 
-            return repository.GetByRestaurant(restaurantId)
-                .Select(ToDto)
-                .ToArray();
-        });
+        return (await repository.GetByRestaurantAsync(restaurantId, cancellationToken))
+            .Select(ToDto)
+            .ToArray();
     }
 }

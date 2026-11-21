@@ -17,85 +17,71 @@ public sealed class AnalyticsService(
     IRestaurantRepository restaurantRepository) : IAnalyticsService
 {
     /// <inheritdoc/>
-    public IReadOnlyList<RestaurantOrderStatisticsDto> GetTopRestaurants()
+    public async Task<IReadOnlyList<RestaurantOrderStatisticsDto>> GetTopRestaurantsAsync(CancellationToken cancellationToken = default)
     {
-        return repository.Execute<IReadOnlyList<RestaurantOrderStatisticsDto>>(() =>
-        {
-            return repository.GetTopRestaurants()
-                .Select(item => new RestaurantOrderStatisticsDto(
-                    item.Restaurant.Id,
-                    item.Restaurant.Name,
-                    item.OrderCount))
-                .ToArray();
-        });
+        return (await repository.GetTopRestaurantsAsync(cancellationToken))
+            .Select(item => new RestaurantOrderStatisticsDto(
+                item.Restaurant.Id,
+                item.Restaurant.Name,
+                item.OrderCount))
+            .ToArray();
     }
 
     /// <inheritdoc/>
-    public IReadOnlyList<OrderDto> GetOrdersWithMinimumDeliveryTime()
+    public async Task<IReadOnlyList<OrderDto>> GetOrdersWithMinimumDeliveryTimeAsync(CancellationToken cancellationToken = default)
     {
-        return repository.Execute<IReadOnlyList<OrderDto>>(() =>
-        {
-            return repository.GetOrdersWithMinimumDeliveryTime()
-                .Select(order => new OrderDto
-                {
-                    Id = order.Id,
-                    CustomerId = order.Customer.Id,
-                    RestaurantId = order.Restaurant.Id,
-                    CreatedAt = order.CreatedAt,
-                    DeliveredAt = order.DeliveredAt,
-                    TotalAmount = order.TotalAmount
-                })
-                .ToArray();
-        });
-    }
-
-    /// <inheritdoc/>
-    public IReadOnlyList<CustomerDto> GetRestaurantCustomers(int restaurantId)
-    {
-        return repository.Execute<IReadOnlyList<CustomerDto>>(() =>
-        {
-            if (restaurantRepository.GetById(restaurantId) is null)
+        return (await repository.GetOrdersWithMinimumDeliveryTimeAsync(cancellationToken))
+            .Select(order => new OrderDto
             {
-                throw new ResourceNotFoundException(
-                    $"Ресторан с идентификатором {restaurantId} не найден");
-            }
-
-            return repository.GetRestaurantCustomers(restaurantId)
-                .Select(ToCustomerDto)
-                .ToArray();
-        });
+                Id = order.Id,
+                CustomerId = order.Customer.Id,
+                RestaurantId = order.Restaurant.Id,
+                CreatedAt = order.CreatedAt,
+                DeliveredAt = order.DeliveredAt,
+                TotalAmount = order.TotalAmount
+            })
+            .ToArray();
     }
 
     /// <inheritdoc/>
-    public IReadOnlyList<CategoryOrderStatisticsDto> GetCategoryStatistics(
+    public async Task<IReadOnlyList<CustomerDto>> GetRestaurantCustomersAsync(int restaurantId, CancellationToken cancellationToken = default)
+    {
+        if (await restaurantRepository.GetByIdAsync(restaurantId, cancellationToken) is null)
+        {
+            throw new ResourceNotFoundException(
+                $"Ресторан с идентификатором {restaurantId} не найден");
+        }
+
+        return (await repository.GetRestaurantCustomersAsync(restaurantId, cancellationToken))
+            .Select(ToCustomerDto)
+            .ToArray();
+    }
+
+    /// <inheritdoc/>
+    public async Task<IReadOnlyList<CategoryOrderStatisticsDto>> GetCategoryStatisticsAsync(
         DateTime start,
-        DateTime end)
+        DateTime end,
+        CancellationToken cancellationToken = default)
     {
-        return repository.Execute<IReadOnlyList<CategoryOrderStatisticsDto>>(() =>
-        {
-            return repository.GetCategoryStatistics(start, end)
-                .Select(item => new CategoryOrderStatisticsDto(
-                    item.Category.Id,
-                    item.Category.Name,
-                    item.OrderCount,
-                    item.AverageAmount,
-                    item.TotalAmount))
-                .ToArray();
-        });
+        return (await repository.GetCategoryStatisticsAsync(start, end, cancellationToken))
+            .Select(item => new CategoryOrderStatisticsDto(
+                item.Category.Id,
+                item.Category.Name,
+                item.OrderCount,
+                item.AverageAmount,
+                item.TotalAmount))
+            .ToArray();
     }
 
     /// <inheritdoc/>
-    public CustomerSpendingDto GetTopSpendingCustomer()
+    public async Task<CustomerSpendingDto> GetTopSpendingCustomerAsync(CancellationToken cancellationToken = default)
     {
-        return repository.Execute<CustomerSpendingDto>(() =>
-        {
-            var result = repository.GetTopSpendingCustomer()
-                ?? throw new ResourceNotFoundException("В системе нет заказов");
+        var result = await repository.GetTopSpendingCustomerAsync(cancellationToken)
+            ?? throw new ResourceNotFoundException("В системе нет заказов");
 
-            return new CustomerSpendingDto(
-                ToCustomerDto(result.Customer),
-                result.TotalAmount);
-        });
+        return new CustomerSpendingDto(
+            ToCustomerDto(result.Customer),
+            result.TotalAmount);
     }
 
     private static CustomerDto ToCustomerDto(Customer customer)

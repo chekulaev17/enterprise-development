@@ -3,8 +3,14 @@
 /// <summary>
 /// Блюдо из меню ресторана
 /// </summary>
-public sealed class Dish
+public sealed class Dish : IHasId
 {
+    /// <summary>Идентификатор категории блюда</summary>
+    public int CategoryId { get; set; }
+
+    /// <summary>Идентификатор ресторана</summary>
+    public int RestaurantId { get; set; }
+
     /// <summary>
     /// Идентификатор блюда
     /// </summary>

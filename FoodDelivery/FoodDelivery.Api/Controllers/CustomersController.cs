@@ -23,12 +23,13 @@ public sealed class CustomersController(
     /// </summary>
     /// <param name="id">Идентификатор клиента</param>
     /// <returns>Заказы клиента</returns>
+    /// <param name="cancellationToken">Токен отмены запроса</param>
     [HttpGet("{id:int}/orders")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound, "application/problem+json")]
-    public ActionResult<IReadOnlyList<OrderDto>> GetOrders(int id)
+    public async Task<ActionResult<IReadOnlyList<OrderDto>>> GetOrders(int id, CancellationToken cancellationToken = default)
     {
-        var orders = orderService.GetByCustomer(id);
+        var orders = await orderService.GetByCustomerAsync(id, cancellationToken);
 
         logger.LogInformation(
             "Получены заказы клиента {CustomerId}, количество: {Count}",

@@ -3,7 +3,7 @@
 /// <summary>
 /// Клиент сервиса доставки
 /// </summary>
-public sealed class Customer
+public sealed class Customer : IHasId
 {
     /// <summary>
     /// Идентификатор клиента

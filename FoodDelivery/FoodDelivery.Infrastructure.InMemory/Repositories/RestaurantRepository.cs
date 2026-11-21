@@ -50,4 +50,16 @@ public sealed class RestaurantRepository(FoodDeliveryData data)
         existingEntity.OpeningTime = updatedEntity.OpeningTime;
         existingEntity.ClosingTime = updatedEntity.ClosingTime;
     }
+
+    /// <inheritdoc/>
+    public Task<bool> HasDishesAsync(int restaurantId, CancellationToken cancellationToken = default)
+    {
+        return Task.FromResult(HasDishes(restaurantId));
+    }
+
+    /// <inheritdoc/>
+    public Task<bool> HasOrdersAsync(int restaurantId, CancellationToken cancellationToken = default)
+    {
+        return Task.FromResult(HasOrders(restaurantId));
+    }
 }

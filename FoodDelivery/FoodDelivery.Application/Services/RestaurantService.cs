@@ -16,18 +16,15 @@ public sealed class RestaurantService(IRestaurantRepository repository)
     protected override IRepository<Restaurant> Repository => repository;
 
     /// <inheritdoc/>
-    public override void Delete(int id)
+    public override async Task DeleteAsync(int id, CancellationToken cancellationToken = default)
     {
-        repository.Execute(() =>
+        if (await repository.HasDishesAsync(id, cancellationToken) || await repository.HasOrdersAsync(id, cancellationToken))
         {
-            if (repository.HasDishes(id) || repository.HasOrders(id))
-            {
-                throw new ResourceConflictException(
-                    "Нельзя удалить ресторан, у которого есть блюда или заказы");
-            }
+            throw new ResourceConflictException(
+                "Нельзя удалить ресторан, у которого есть блюда или заказы");
+        }
 
-            base.Delete(id);
-        });
+        await base.DeleteAsync(id, cancellationToken);
     }
 
     /// <inheritdoc/>
@@ -45,9 +42,13 @@ public sealed class RestaurantService(IRestaurantRepository repository)
     }
 
     /// <inheritdoc/>
-    protected override Restaurant ToEntity(RestaurantRequest request, int id)
+    protected override Task<Restaurant> ToEntityAsync(
+        RestaurantRequest request,
+        int id,
+        Restaurant? existing,
+        CancellationToken cancellationToken)
     {
-        return new Restaurant
+        return Task.FromResult(new Restaurant
         {
             Id = id,
             Name = request.Name.Trim(),
@@ -55,6 +56,6 @@ public sealed class RestaurantService(IRestaurantRepository repository)
             Rating = request.Rating,
             OpeningTime = request.OpeningTime.ToTimeSpan(),
             ClosingTime = request.ClosingTime.ToTimeSpan()
-        };
+        });
     }
 }

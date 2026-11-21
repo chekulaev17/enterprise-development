@@ -18,17 +18,24 @@ public abstract class CrudControllerBase<TDto, TRequest>(
     where TDto : class
     where TRequest : class
 {
+    /// <summary>Прикладная служба ресурса</summary>
+    protected ICrudService<TDto, TRequest> Service { get; } = service;
+
+    /// <summary>Средство журналирования</summary>
+    protected ILogger Logger { get; } = logger;
+
     /// <summary>
     /// Возвращает все ресурсы
     /// </summary>
     /// <returns>Коллекция ресурсов</returns>
+    /// <param name="cancellationToken">Токен отмены запроса</param>
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public ActionResult<IReadOnlyList<TDto>> GetAll()
+    public async Task<ActionResult<IReadOnlyList<TDto>>> GetAll(CancellationToken cancellationToken = default)
     {
-        var resources = service.GetAll();
+        var resources = await Service.GetAllAsync(cancellationToken);
 
-        logger.LogInformation(
+        Logger.LogInformation(
             "Получена коллекция {ResourceType}, количество: {Count}",
             typeof(TDto).Name,
             resources.Count);
@@ -41,14 +48,15 @@ public abstract class CrudControllerBase<TDto, TRequest>(
     /// </summary>
     /// <param name="id">Идентификатор ресурса</param>
     /// <returns>Найденный ресурс или сообщение об отсутствии</returns>
+    /// <param name="cancellationToken">Токен отмены запроса</param>
     [HttpGet("{id:int}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound, "application/problem+json")]
-    public ActionResult<TDto> GetById(int id)
+    public async Task<ActionResult<TDto>> GetById(int id, CancellationToken cancellationToken = default)
     {
-        var resource = service.GetById(id);
+        var resource = await Service.GetByIdAsync(id, cancellationToken);
 
-        logger.LogInformation(
+        Logger.LogInformation(
             "Получен ресурс {ResourceType} с идентификатором {Id}",
             typeof(TDto).Name,
             id);
@@ -61,17 +69,18 @@ public abstract class CrudControllerBase<TDto, TRequest>(
     /// </summary>
     /// <param name="request">Данные нового ресурса</param>
     /// <returns>Созданный ресурс</returns>
+    /// <param name="cancellationToken">Токен отмены запроса</param>
     [EndpointSummary("Создаёт ресурс")]
     [HttpPost]
     [ProducesDefaultResponseType(typeof(ProblemDetails))]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest, "application/problem+json")]
-    public ActionResult<TDto> Create([FromBody] TRequest request)
+    public virtual async Task<ActionResult<TDto>> Create([FromBody] TRequest request, CancellationToken cancellationToken = default)
     {
-        var resource = service.Create(request);
+        var resource = await Service.CreateAsync(request, cancellationToken);
         var id = GetResourceId(resource);
 
-        logger.LogInformation(
+        Logger.LogInformation(
             "Создан ресурс {ResourceType} с идентификатором {Id}",
             typeof(TDto).Name,
             id);
@@ -85,17 +94,18 @@ public abstract class CrudControllerBase<TDto, TRequest>(
     /// <param name="id">Идентификатор ресурса</param>
     /// <param name="request">Новые данные ресурса</param>
     /// <returns>Изменённый ресурс или сообщение об отсутствии</returns>
+    /// <param name="cancellationToken">Токен отмены запроса</param>
     [EndpointSummary("Изменяет ресурс")]
     [HttpPut("{id:int}")]
     [ProducesDefaultResponseType(typeof(ProblemDetails))]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest, "application/problem+json")]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound, "application/problem+json")]
-    public ActionResult<TDto> Update(int id, [FromBody] TRequest request)
+    public virtual async Task<ActionResult<TDto>> Update(int id, [FromBody] TRequest request, CancellationToken cancellationToken = default)
     {
-        var resource = service.Update(id, request);
+        var resource = await Service.UpdateAsync(id, request, cancellationToken);
 
-        logger.LogInformation(
+        Logger.LogInformation(
             "Изменён ресурс {ResourceType} с идентификатором {Id}",
             typeof(TDto).Name,
             id);
@@ -108,14 +118,16 @@ public abstract class CrudControllerBase<TDto, TRequest>(
     /// </summary>
     /// <param name="id">Идентификатор ресурса</param>
     /// <returns>Ответ без содержимого</returns>
+    /// <param name="cancellationToken">Токен отмены запроса</param>
     [HttpDelete("{id:int}")]
     [ProducesDefaultResponseType(typeof(ProblemDetails))]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public IActionResult Delete(int id)
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict, "application/problem+json")]
+    public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken = default)
     {
-        service.Delete(id);
+        await Service.DeleteAsync(id, cancellationToken);
 
-        logger.LogInformation(
+        Logger.LogInformation(
             "Выполнено удаление ресурса {ResourceType} с идентификатором {Id}",
             typeof(TDto).Name,
             id);

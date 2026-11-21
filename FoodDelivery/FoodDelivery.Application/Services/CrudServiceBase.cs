@@ -22,64 +22,50 @@ public abstract class CrudServiceBase<TEntity, TDto, TRequest>
     protected abstract IRepository<TEntity> Repository { get; }
 
     /// <inheritdoc/>
-    public IReadOnlyList<TDto> GetAll()
+    public async Task<IReadOnlyList<TDto>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        return Repository.Execute<IReadOnlyList<TDto>>(() =>
-        {
-            return Repository.GetAll()
-                .Select(ToDto)
-                .ToArray();
-        });
+        return (await Repository.GetAllAsync(cancellationToken))
+            .Select(ToDto)
+            .ToArray();
     }
 
     /// <inheritdoc/>
-    public TDto GetById(int id)
+    public async Task<TDto> GetByIdAsync(int id, CancellationToken cancellationToken = default)
     {
-        return Repository.Execute<TDto>(() =>
-        {
-            var entity = Repository.GetById(id) ?? throw MissingResource(id);
+        var entity = await Repository.GetByIdAsync(id, cancellationToken) ?? throw MissingResource(id);
 
-            return ToDto(entity);
-        });
+        return ToDto(entity);
     }
 
     /// <inheritdoc/>
-    public TDto Create(TRequest request)
+    public async Task<TDto> CreateAsync(TRequest request, CancellationToken cancellationToken = default)
     {
-        return Repository.Execute<TDto>(() =>
-        {
-            var entity = ToEntity(request, 0);
-            var createdEntity = Repository.Add(entity);
+        var entity = await ToEntityAsync(request, 0, null, cancellationToken);
+        var createdEntity = await Repository.AddAsync(entity, cancellationToken);
 
-            return ToDto(createdEntity);
-        });
+        return ToDto(createdEntity);
     }
 
     /// <inheritdoc/>
-    public TDto Update(int id, TRequest request)
+    public virtual async Task<TDto> UpdateAsync(int id, TRequest request, CancellationToken cancellationToken = default)
     {
-        return Repository.Execute<TDto>(() =>
+        var existing = await Repository.GetByIdAsync(id, cancellationToken)
+            ?? throw MissingResource(id);
+
+        var entity = await ToEntityAsync(request, id, existing, cancellationToken);
+
+        if (!await Repository.UpdateAsync(entity, cancellationToken))
         {
-            if (Repository.GetById(id) is null)
-            {
-                throw MissingResource(id);
-            }
+            throw MissingResource(id);
+        }
 
-            var entity = ToEntity(request, id);
-
-            Repository.Update(entity);
-
-            return ToDto(entity);
-        });
+        return ToDto(entity);
     }
 
     /// <inheritdoc/>
-    public virtual void Delete(int id)
+    public virtual async Task DeleteAsync(int id, CancellationToken cancellationToken = default)
     {
-        Repository.Execute(() =>
-        {
-            Repository.Delete(id);
-        });
+        await Repository.DeleteAsync(id, cancellationToken);
     }
 
     private static ResourceNotFoundException MissingResource(int id)
@@ -100,5 +86,11 @@ public abstract class CrudServiceBase<TEntity, TDto, TRequest>
     /// <param name="request">Данные запроса</param>
     /// <param name="id">Идентификатор сущности</param>
     /// <returns>Доменная сущность</returns>
-    protected abstract TEntity ToEntity(TRequest request, int id);
+    /// <param name="existing">Текущая сущность при обновлении</param>
+    /// <param name="cancellationToken">Токен отмены запроса</param>
+    protected abstract Task<TEntity> ToEntityAsync(
+        TRequest request,
+        int id,
+        TEntity? existing,
+        CancellationToken cancellationToken);
 }

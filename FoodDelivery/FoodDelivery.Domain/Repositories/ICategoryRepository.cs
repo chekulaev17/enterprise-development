@@ -12,5 +12,6 @@ public interface ICategoryRepository : IRepository<Category>
     /// </summary>
     /// <param name="categoryId">Идентификатор категории</param>
     /// <returns>Признак наличия блюд в категории</returns>
-    bool HasDishes(int categoryId);
+    /// <param name="cancellationToken">Токен отмены операции</param>
+    public Task<bool> HasDishesAsync(int categoryId, CancellationToken cancellationToken = default);
 }

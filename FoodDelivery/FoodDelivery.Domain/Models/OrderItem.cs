@@ -5,10 +5,16 @@
 /// </summary>
 public sealed class OrderItem
 {
+    /// <summary>Идентификатор заказа</summary>
+    public int OrderId { get; set; }
+
+    /// <summary>Идентификатор блюда</summary>
+    public int DishId { get; set; }
+
     /// <summary>
-    /// Идентификатор позиции внутри заказа
+    /// Идентификатор позиции
     /// </summary>
-    public required int Id { get; init; }
+    public required int Id { get; set; }
 
     /// <summary>
     /// Блюдо в позиции заказа

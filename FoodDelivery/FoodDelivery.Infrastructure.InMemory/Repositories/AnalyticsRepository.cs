@@ -148,4 +148,37 @@ public sealed class AnalyticsRepository(FoodDeliveryData data)
             operation();
         }
     }
+
+    /// <inheritdoc/>
+    public Task<IReadOnlyList<RestaurantOrderStatistics>> GetTopRestaurantsAsync(CancellationToken cancellationToken = default)
+    {
+        return Task.FromResult(GetTopRestaurants());
+    }
+
+    /// <inheritdoc/>
+    public Task<IReadOnlyList<Order>> GetOrdersWithMinimumDeliveryTimeAsync(CancellationToken cancellationToken = default)
+    {
+        return Task.FromResult(GetOrdersWithMinimumDeliveryTime());
+    }
+
+    /// <inheritdoc/>
+    public Task<IReadOnlyList<Customer>> GetRestaurantCustomersAsync(int restaurantId, CancellationToken cancellationToken = default)
+    {
+        return Task.FromResult(GetRestaurantCustomers(restaurantId));
+    }
+
+    /// <inheritdoc/>
+    public Task<IReadOnlyList<CategoryOrderStatistics>> GetCategoryStatisticsAsync(
+        DateTime start,
+        DateTime end,
+        CancellationToken cancellationToken = default)
+    {
+        return Task.FromResult(GetCategoryStatistics(start, end));
+    }
+
+    /// <inheritdoc/>
+    public Task<CustomerSpending?> GetTopSpendingCustomerAsync(CancellationToken cancellationToken = default)
+    {
+        return Task.FromResult(GetTopSpendingCustomer());
+    }
 }

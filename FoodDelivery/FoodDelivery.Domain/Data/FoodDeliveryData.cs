@@ -604,6 +604,12 @@ public class FoodDeliveryData
             CreateOrder(39, 5, 9, 25, 8),
             CreateOrder(40, 6, 10, 35, 5)
         ];
+
+        var itemId = 1;
+        foreach (var item in Orders.SelectMany(order => order.Items))
+        {
+            item.Id = itemId++;
+        }
     }
 
     /// <summary>
@@ -628,7 +634,9 @@ public class FoodDeliveryData
 
             items.Add(new OrderItem
             {
-                Id = i + 1,
+                Id = 0,
+                OrderId = id,
+                DishId = dish.Id,
                 Dish = dish,
                 UnitPrice = dish.Price,
                 Quantity = 1,

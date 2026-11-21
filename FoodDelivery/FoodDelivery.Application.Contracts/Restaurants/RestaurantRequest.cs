@@ -11,12 +11,14 @@ public sealed class RestaurantRequest
     /// Название ресторана
     /// </summary>
     [Required(ErrorMessage = "Укажите название ресторана")]
+    [StringLength(100)]
     public required string Name { get; init; }
 
     /// <summary>
     /// Адрес ресторана
     /// </summary>
     [Required(ErrorMessage = "Укажите адрес ресторана")]
+    [StringLength(255)]
     public required string Address { get; init; }
 
     /// <summary>

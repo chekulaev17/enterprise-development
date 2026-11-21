@@ -16,13 +16,14 @@ public sealed class OrderServiceTests
     /// Проверяет создание заказа без позиций
     /// </summary>
     [Fact]
-    public void Create_AssignsIdAndZeroTotal()
+    public async Task Create_AssignsIdAndZeroTotal()
     {
+        var cancellationToken = TestContext.Current.CancellationToken;
         var data = new FoodDeliveryData();
         var service = CreateService(data);
         var request = CreateRequest(data.Orders.First());
 
-        var created = service.Create(request);
+        var created = await service.CreateAsync(request, cancellationToken);
 
         Assert.True(created.Id > 0);
         Assert.Equal(0m, created.TotalAmount);
@@ -38,8 +39,9 @@ public sealed class OrderServiceTests
     /// Проверяет сохранение позиций и суммы при изменении клиента
     /// </summary>
     [Fact]
-    public void Update_PreservesItemsAndReturnedTotal()
+    public async Task Update_PreservesItemsAndReturnedTotal()
     {
+        var cancellationToken = TestContext.Current.CancellationToken;
         var data = new FoodDeliveryData();
         var service = CreateService(data);
         var order = data.Orders.First();
@@ -49,7 +51,7 @@ public sealed class OrderServiceTests
         var otherCustomer = data.Customers
             .First(customer => customer.Id != order.Customer.Id);
 
-        var updated = service.Update(
+        var updated = await service.UpdateAsync(
             order.Id,
             new OrderRequest
             {
@@ -57,7 +59,7 @@ public sealed class OrderServiceTests
                 RestaurantId = order.Restaurant.Id,
                 CreatedAt = order.CreatedAt,
                 DeliveredAt = order.DeliveredAt
-            });
+            }, cancellationToken);
 
         Assert.NotNull(updated);
         Assert.Same(originalItems, order.Items);
@@ -70,8 +72,9 @@ public sealed class OrderServiceTests
     /// Проверяет запрет смены ресторана заказа с позициями
     /// </summary>
     [Fact]
-    public void Update_RejectsRestaurantChangeWhenItemsExist()
+    public async Task Update_RejectsRestaurantChangeWhenItemsExist()
     {
+        var cancellationToken = TestContext.Current.CancellationToken;
         var data = new FoodDeliveryData();
         var service = CreateService(data);
         var order = data.Orders.First();
@@ -80,14 +83,14 @@ public sealed class OrderServiceTests
         var otherRestaurant = data.Restaurants
             .First(restaurant => restaurant.Id != originalRestaurant.Id);
 
-        Assert.Throws<ResourceConflictException>(() =>
-            service.Update(order.Id, new OrderRequest
+        await Assert.ThrowsAsync<ResourceConflictException>(async () =>
+            await service.UpdateAsync(order.Id, new OrderRequest
             {
                 CustomerId = order.Customer.Id,
                 RestaurantId = otherRestaurant.Id,
                 CreatedAt = order.CreatedAt,
                 DeliveredAt = order.DeliveredAt
-            }));
+            }, cancellationToken));
 
         Assert.Same(originalRestaurant, order.Restaurant);
     }
@@ -99,8 +102,9 @@ public sealed class OrderServiceTests
     [Theory]
     [InlineData(true)]
     [InlineData(false)]
-    public void Create_RejectsMissingReference(bool missingCustomer)
+    public async Task Create_RejectsMissingReference(bool missingCustomer)
     {
+        var cancellationToken = TestContext.Current.CancellationToken;
         var data = new FoodDeliveryData();
         var service = CreateService(data);
         var initialCount = data.Orders.Count;
@@ -116,8 +120,8 @@ public sealed class OrderServiceTests
             CreatedAt = new DateTime(2026, 9, 21, 12, 0, 0)
         };
 
-        Assert.Throws<InvalidReferenceException>(
-            () => service.Create(request));
+        await Assert.ThrowsAsync<InvalidReferenceException>(
+            async () => await service.CreateAsync(request, cancellationToken));
 
         Assert.Equal(initialCount, data.Orders.Count);
     }
@@ -126,23 +130,24 @@ public sealed class OrderServiceTests
     /// Проверяет удаление заказа из связанных выборок
     /// </summary>
     [Fact]
-    public void Delete_RemovesOrderFromRelatedQueries()
+    public async Task Delete_RemovesOrderFromRelatedQueries()
     {
+        var cancellationToken = TestContext.Current.CancellationToken;
         var data = new FoodDeliveryData();
         var service = CreateService(data);
-        var created = service.Create(CreateRequest(data.Orders.First()));
+        var created = await service.CreateAsync(CreateRequest(data.Orders.First()), cancellationToken);
 
-        service.Delete(created.Id);
-        service.Delete(created.Id);
+        await service.DeleteAsync(created.Id, cancellationToken);
+        await service.DeleteAsync(created.Id, cancellationToken);
 
-        Assert.Throws<ResourceNotFoundException>(() => service.GetById(created.Id));
+        await Assert.ThrowsAsync<ResourceNotFoundException>(async () => await service.GetByIdAsync(created.Id, cancellationToken));
 
         Assert.DoesNotContain(
-            service.GetByCustomer(created.CustomerId),
+            await service.GetByCustomerAsync(created.CustomerId, cancellationToken),
             order => order.Id == created.Id);
 
         Assert.DoesNotContain(
-            service.GetByRestaurant(created.RestaurantId),
+            await service.GetByRestaurantAsync(created.RestaurantId, cancellationToken),
             order => order.Id == created.Id);
     }
 
@@ -151,7 +156,8 @@ public sealed class OrderServiceTests
         return new OrderService(
             new OrderRepository(data),
             new CustomerRepository(data),
-            new RestaurantRepository(data));
+            new RestaurantRepository(data),
+            new InMemoryOrderWriteTransaction(data));
     }
 
     private static OrderRequest CreateRequest(Order order)

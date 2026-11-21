@@ -41,4 +41,10 @@ public sealed class CustomerRepository(FoodDeliveryData data)
         existingEntity.Phone = updatedEntity.Phone;
         existingEntity.DeliveryAddress = updatedEntity.DeliveryAddress;
     }
+
+    /// <inheritdoc/>
+    public Task<bool> HasOrdersAsync(int customerId, CancellationToken cancellationToken = default)
+    {
+        return Task.FromResult(HasOrders(customerId));
+    }
 }

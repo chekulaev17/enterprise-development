@@ -26,12 +26,13 @@ public sealed class RestaurantsController(
     /// </summary>
     /// <param name="id">Идентификатор ресторана</param>
     /// <returns>Заказы ресторана</returns>
+    /// <param name="cancellationToken">Токен отмены запроса</param>
     [HttpGet("{id:int}/orders")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound, "application/problem+json")]
-    public ActionResult<IReadOnlyList<OrderDto>> GetOrders(int id)
+    public async Task<ActionResult<IReadOnlyList<OrderDto>>> GetOrders(int id, CancellationToken cancellationToken = default)
     {
-        var orders = orderService.GetByRestaurant(id);
+        var orders = await orderService.GetByRestaurantAsync(id, cancellationToken);
 
         logger.LogInformation(
             "Получены заказы ресторана {RestaurantId}, количество: {Count}",
@@ -52,12 +53,13 @@ public sealed class RestaurantsController(
     /// </summary>
     /// <param name="id">Идентификатор ресторана</param>
     /// <returns>Блюда ресторана</returns>
+    /// <param name="cancellationToken">Токен отмены запроса</param>
     [HttpGet("{id:int}/dishes")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound, "application/problem+json")]
-    public ActionResult<IReadOnlyList<DishDto>> GetDishes(int id)
+    public async Task<ActionResult<IReadOnlyList<DishDto>>> GetDishes(int id, CancellationToken cancellationToken = default)
     {
-        var dishes = dishService.GetByRestaurant(id);
+        var dishes = await dishService.GetByRestaurantAsync(id, cancellationToken);
 
         logger.LogInformation(
             "Получены блюда ресторана {RestaurantId}, количество: {Count}",

@@ -7,25 +7,33 @@ using FoodDelivery.Application.Contracts.Dishes;
 using FoodDelivery.Application.Contracts.Orders;
 using FoodDelivery.Application.Contracts.Restaurants;
 using FoodDelivery.Application.Services;
-using FoodDelivery.Domain.Data;
 using FoodDelivery.Domain.Repositories;
-using FoodDelivery.Infrastructure.InMemory.Repositories;
+using FoodDelivery.Infrastructure.EfCore;
+using FoodDelivery.Infrastructure.EfCore.Repositories;
+using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.AddServiceDefaults();
+
+var connectionString = builder.Configuration.GetConnectionString("fooddelivery")
+    ?? throw new InvalidOperationException("Не задана строка подключения к MySQL.");
+
+builder.Services.AddDbContext<FoodDeliveryDbContext>(options => options.UseMySQL(connectionString));
 
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<ApiExceptionHandler>();
 
-builder.Services.AddSingleton<FoodDeliveryData>();
-builder.Services.AddSingleton<ICategoryRepository, CategoryRepository>();
-builder.Services.AddSingleton<ICustomerRepository, CustomerRepository>();
-builder.Services.AddSingleton<IRestaurantRepository, RestaurantRepository>();
-builder.Services.AddSingleton<IDishRepository, DishRepository>();
-builder.Services.AddSingleton<IOrderRepository, OrderRepository>();
-builder.Services.AddSingleton<IAnalyticsRepository, AnalyticsRepository>();
+builder.Services.AddScoped<IOrderWriteTransaction, OrderWriteTransaction>();
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
+builder.Services.AddScoped<IRestaurantRepository, RestaurantRepository>();
+builder.Services.AddScoped<IDishRepository, DishRepository>();
+builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+builder.Services.AddScoped<IAnalyticsRepository, AnalyticsRepository>();
 
 builder.Services.AddScoped<ICrudService<CategoryDto, CategoryRequest>, CategoryService>();
 builder.Services.AddScoped<ICrudService<CustomerDto, CustomerRequest>, CustomerService>();
@@ -41,6 +49,10 @@ app.UseExceptionHandler();
 
 if (app.Environment.IsDevelopment())
 {
+    await using var scope = app.Services.CreateAsyncScope();
+    var database = scope.ServiceProvider.GetRequiredService<FoodDeliveryDbContext>();
+    await database.Database.MigrateAsync();
+
     app.MapOpenApi();
 
     app.MapScalarApiReference(options =>
@@ -50,5 +62,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.MapControllers();
+app.MapDefaultEndpoints();
 
 app.Run();

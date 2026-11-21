@@ -16,18 +16,15 @@ public sealed class CustomerService(ICustomerRepository repository)
     protected override IRepository<Customer> Repository => repository;
 
     /// <inheritdoc/>
-    public override void Delete(int id)
+    public override async Task DeleteAsync(int id, CancellationToken cancellationToken = default)
     {
-        repository.Execute(() =>
+        if (await repository.HasOrdersAsync(id, cancellationToken))
         {
-            if (repository.HasOrders(id))
-            {
-                throw new ResourceConflictException(
-                    "Нельзя удалить клиента, у которого есть заказы");
-            }
+            throw new ResourceConflictException(
+                "Нельзя удалить клиента, у которого есть заказы");
+        }
 
-            base.Delete(id);
-        });
+        await base.DeleteAsync(id, cancellationToken);
     }
 
     /// <inheritdoc/>
@@ -45,9 +42,13 @@ public sealed class CustomerService(ICustomerRepository repository)
     }
 
     /// <inheritdoc/>
-    protected override Customer ToEntity(CustomerRequest request, int id)
+    protected override Task<Customer> ToEntityAsync(
+        CustomerRequest request,
+        int id,
+        Customer? existing,
+        CancellationToken cancellationToken)
     {
-        return new Customer
+        return Task.FromResult(new Customer
         {
             Id = id,
             LastName = request.LastName.Trim(),
@@ -57,6 +58,6 @@ public sealed class CustomerService(ICustomerRepository repository)
                 : request.Patronymic.Trim(),
             Phone = request.Phone.Trim(),
             DeliveryAddress = request.DeliveryAddress.Trim()
-        };
+        });
     }
 }

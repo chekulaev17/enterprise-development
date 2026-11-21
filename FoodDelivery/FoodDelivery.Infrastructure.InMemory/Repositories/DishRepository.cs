@@ -66,4 +66,22 @@ public sealed class DishRepository(FoodDeliveryData data)
                 .ToArray();
         }
     }
+
+    /// <inheritdoc/>
+    public Task<bool> IsUsedInOrdersAsync(int dishId, CancellationToken cancellationToken = default)
+    {
+        return Task.FromResult(IsUsedInOrders(dishId));
+    }
+
+    /// <inheritdoc/>
+    public Task<IReadOnlyList<Dish>> GetByCategoryAsync(int categoryId, CancellationToken cancellationToken = default)
+    {
+        return Task.FromResult(GetByCategory(categoryId));
+    }
+
+    /// <inheritdoc/>
+    public Task<IReadOnlyList<Dish>> GetByRestaurantAsync(int restaurantId, CancellationToken cancellationToken = default)
+    {
+        return Task.FromResult(GetByRestaurant(restaurantId));
+    }
 }
